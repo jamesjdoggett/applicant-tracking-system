@@ -1,5 +1,7 @@
 from django.core.paginator import Paginator
+from django.db import IntegrityError, transaction
 from django.db.models import Q
+from django.http import Http404
 from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import (
     require_http_methods,
@@ -8,8 +10,43 @@ from django.views.decorators.http import (
 )
 
 from .decorators import staff_required
-from .forms import CandidateForm, OpeningForm
-from .models import Candidate, Opening
+from .forms import ApplicationForm, CandidateForm, OpeningForm
+from .models import Application, Candidate, Opening
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def application_create(request):
+    initial = {}
+    for field, model in [("candidate", Candidate), ("opening", Opening)]:
+        if request.GET.get(field):
+            try:
+                initial[field] = get_object_or_404(model, pk=int(request.GET[field]))
+            except ValueError, OverflowError:
+                raise Http404("Record not found") from None
+    form = ApplicationForm(
+        request.POST if request.method == "POST" else None, initial=initial
+    )
+    if request.method == "POST" and form.is_valid():
+        try:
+            with transaction.atomic():
+                application = form.save()
+        except IntegrityError:
+            if not Application.objects.filter(
+                candidate=form.cleaned_data["candidate"],
+                opening=form.cleaned_data["opening"],
+            ).exists():
+                raise
+            form.add_error(
+                None, "An application for this candidate and opening already exists."
+            )
+        else:
+            if "opening" in initial and "candidate" not in initial:
+                return redirect("recruiting:opening_detail", pk=application.opening_id)
+            return redirect("recruiting:candidate_detail", pk=application.candidate_id)
+    return render(
+        request, "recruiting/application_form.html", {"form": form, **initial}
+    )
 
 
 @staff_required
@@ -61,7 +98,14 @@ def opening_edit(request, pk):
 @require_safe
 def opening_detail(request, pk):
     opening = get_object_or_404(Opening, pk=pk)
-    return render(request, "recruiting/opening_detail.html", {"opening": opening})
+    return render(
+        request,
+        "recruiting/opening_detail.html",
+        {
+            "opening": opening,
+            "applications": opening.applications.select_related("candidate"),
+        },
+    )
 
 
 @staff_required
@@ -111,7 +155,14 @@ def candidate_restore(request, pk):
 @require_safe
 def candidate_detail(request, pk):
     candidate = get_object_or_404(Candidate, pk=pk)
-    return render(request, "recruiting/candidate_detail.html", {"candidate": candidate})
+    return render(
+        request,
+        "recruiting/candidate_detail.html",
+        {
+            "candidate": candidate,
+            "applications": candidate.applications.select_related("opening"),
+        },
+    )
 
 
 @staff_required

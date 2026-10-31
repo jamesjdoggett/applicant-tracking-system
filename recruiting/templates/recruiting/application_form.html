@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}New application | Applicant Tracking System{% endblock %}
+{% block content %}
+  <section class="card mx-auto max-w-2xl border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body p-6 sm:p-10">
+      <h1 class="text-3xl font-semibold">New application</h1>
+      <p class="text-base-content/70">Select an active candidate and an open opening. Applications start at Applied.</p>
+      <p class="text-base-content/70">Need a new candidate? <a class="link link-primary" href="{% url 'recruiting:candidate_create' %}">Create a candidate first</a>.</p>
+      <form method="post" class="mt-4 space-y-5">
+        {% csrf_token %}
+        {% if form.errors %}<div class="alert alert-error" role="alert">Please correct the errors below.{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div>
+            <label class="mb-2 block font-medium" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="mt-1 text-error">{{ field.errors }}</div>{% endif %}
+          </div>
+        {% endfor %}
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button class="btn btn-primary" type="submit">Create application</button>
+          {% if candidate %}<a class="btn btn-ghost" href="{% url 'recruiting:candidate_detail' candidate.pk %}">Cancel</a>
+          {% elif opening %}<a class="btn btn-ghost" href="{% url 'recruiting:opening_detail' opening.pk %}">Cancel</a>
+          {% else %}<a class="btn btn-ghost" href="{% url 'recruiting:candidate_list' %}">Cancel</a>{% endif %}
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}

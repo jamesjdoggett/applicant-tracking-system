@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–5 passed automated checks and received user approval after browser-verification instructions. Phases 6–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–6 passed automated checks and received user approval after browser-verification instructions. Phases 7–10 have not started.
 
 ## Architectural decisions
 
@@ -121,12 +121,12 @@ Introduce `Application` and its database pairing constraint. Deliver application
 
 ### Acceptance criteria
 
-- [ ] One candidate can apply to multiple openings, and an opening can receive multiple candidates. Duplicate pairings are rejected by forms and the database at every stage.
-- [ ] Archived candidates and closed openings cannot receive new applications, including a form submitted after either status changes. Reopening permits new eligible pairings.
-- [ ] Creation always uses Applied and an automatic date; submitted stage/date overrides are not accepted. No application-pairing edit action exists.
-- [ ] Candidate archiving and opening closure/reopening preserve related applications and their stored stages; related records remain visible from both detail pages.
-- [ ] Automated tests cover creation, defaults, forged input, immutable pairings, uniqueness including terminal records, eligibility changes, detail relationships, and staff access.
-- [ ] Manual: create applications from both detail contexts, try a duplicate, archive/restore a candidate, and close/reopen an opening while checking preserved applications.
+- [x] One candidate can apply to multiple openings, and an opening can receive multiple candidates. Duplicate pairings are rejected by forms and the database at every stage.
+- [x] Archived candidates and closed openings cannot receive new applications, including a form submitted after either status changes. Reopening permits new eligible pairings.
+- [x] Creation always uses Applied and an automatic date; submitted stage/date overrides are not accepted. No application-pairing edit action exists.
+- [x] Candidate archiving and opening closure/reopening preserve related applications and their stored stages; related records remain visible from both detail pages.
+- [x] Automated tests cover creation, defaults, forged input, immutable pairings, uniqueness including terminal records, eligibility changes, detail relationships, and staff access.
+- [x] Manual: create applications from both detail contexts, try a duplicate, archive/restore a candidate, and close/reopen an opening while checking preserved applications. User approved Phase 6 after receiving the browser-verification steps.
 
 ---
 

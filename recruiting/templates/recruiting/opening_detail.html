@@ -15,6 +15,21 @@
           {% for skill in opening.skills.all %}<span class="badge badge-outline">{{ skill.name }}</span>{% empty %}No skills selected{% endfor %}
         </dd></div>
       </dl>
+      <h2 class="mt-6 text-xl font-semibold">Applications</h2>
+      {% if opening.status == 'open' %}
+        <div><a class="btn btn-outline" href="{% url 'recruiting:application_create' %}?opening={{ opening.pk }}">New application</a></div>
+      {% else %}<p>Reopen this opening before creating a new application.</p>{% endif %}
+      <div class="overflow-x-auto">
+        <table class="table">
+          <caption class="sr-only">Opening applications</caption>
+          <thead><tr><th scope="col">Candidate</th><th scope="col">Stage</th><th scope="col">Created</th></tr></thead>
+          <tbody>
+            {% for application in applications %}
+              <tr><td><a class="link link-primary" href="{% url 'recruiting:candidate_detail' application.candidate_id %}">{{ application.candidate.name }}</a><div>{{ application.candidate.email }}</div></td><td>{{ application.get_stage_display }}</td><td>{{ application.created_at|date:"M j, Y" }}</td></tr>
+            {% empty %}<tr><td colspan="3">No applications yet.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 {% endblock %}

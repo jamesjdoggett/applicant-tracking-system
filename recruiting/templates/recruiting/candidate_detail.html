@@ -20,6 +20,21 @@
         <div><dt class="font-semibold">Source details</dt><dd class="whitespace-pre-wrap break-words">{{ candidate.source_details|default:"Not provided" }}</dd></div>
         <div><dt class="font-semibold">Internal notes</dt><dd class="whitespace-pre-wrap break-words">{{ candidate.notes|default:"No notes" }}</dd></div>
       </dl>
+      <h2 class="mt-6 text-xl font-semibold">Applications</h2>
+      {% if not candidate.is_archived %}
+        <div><a class="btn btn-outline" href="{% url 'recruiting:application_create' %}?candidate={{ candidate.pk }}">New application</a></div>
+      {% else %}<p>Restore this candidate before creating a new application.</p>{% endif %}
+      <div class="overflow-x-auto">
+        <table class="table">
+          <caption class="sr-only">Candidate applications</caption>
+          <thead><tr><th scope="col">Opening</th><th scope="col">Stage</th><th scope="col">Created</th></tr></thead>
+          <tbody>
+            {% for application in applications %}
+              <tr><td><a class="link link-primary" href="{% url 'recruiting:opening_detail' application.opening_id %}">{{ application.opening.title }} (#{{ application.opening_id }})</a></td><td>{{ application.get_stage_display }}</td><td>{{ application.created_at|date:"M j, Y" }}</td></tr>
+            {% empty %}<tr><td colspan="3">No applications yet.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
   </section>
 {% endblock %}

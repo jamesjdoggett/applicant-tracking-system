@@ -1,5 +1,24 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 6 application creation and related records
+
+### Prompts
+
+1. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 6 only.`
+2. Supplied the implement skill: follow the PRD and plan, use the TDD skill with required approvals, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+3. Answered `yes` to selecting duplicate-pairing prevention across all stages and submission-time candidate/opening eligibility for TDD.
+4. Answered `yes` to the duplicate-pairing RED checkpoint: the form accepted an existing Applied pairing; approved the test requiring useful form feedback and database rejection at all eight stages.
+5. Answered `approved` to the duplicate-pairing GREEN review after all 126 tests passed.
+6. Answered `yes` to the eligibility RED checkpoint: submitting after candidate archiving created an application instead of returning a field error; approved the test also covering opening closure and successful creation after restoration/reopening.
+7. Answered `approved` to the eligibility GREEN review after all 127 tests passed.
+8. Approved Phase 6 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, project structure, and durable conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 6 logging here; review and staging of all Phase 6 changes; the exact commit message `Phase 6 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 7.
+
+### Summary
+
+- **Outcome:** Implemented Phase 6 only: Application model and migrations with eight stages, Applied default, automatic creation timestamp, and database candidate-opening uniqueness; a shared staff-only creation form with fresh active-candidate/open-opening choices and descriptive labels; creation links and related application tables on candidate/opening details; context preselection and return navigation; duplicate feedback, including terminal pairings; and preserved applications across candidate archiving/restoration and opening closure/reopening. Pairings have no edit endpoint; creation accepts only candidate/opening fields and ignores stage/date/ID overrides. All 166 tests passed, covering both contexts, defaults, forged/invalid input, multiple applications per parent, form/database uniqueness at every stage, stale-form eligibility, retained relationships/stages/dates, ordinary/HTMX staff access, CSRF, HTTP methods, and invalid contexts. Ruff lint/format, Django system checks, migration consistency, and the CSS build passed; both local Application migrations were applied. User approved Phase 6 after browser-verification instructions. Added two durable conventions to AGENTS.md and marked Phase 6 approved in the plan. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No changes to Phase 6 scope. Paused for the TDD selection, both RED/GREEN reviews, and manual-verification approval. Pipeline, inline stage editing, and deletion remain in their planned later phases. No Phase 7 work was started.
+- **Sideways:** Both selected TDD tests failed on their intended assertions before implementation. The database uniqueness constraint and fresh ModelChoiceField querysets made them pass. Commands used approved escalation for uv cache access. Ruff found one overlong error-message string; split the string and reran lint/format checks successfully. No unresolved check failures remain.
+
 ## 2026-10-31 — Phase 5 opening search and status filtering
 
 ### Prompts

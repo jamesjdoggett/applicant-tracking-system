@@ -54,3 +54,37 @@ class Candidate(models.Model):
     def save(self, *args, **kwargs):
         self.email = self.email.strip().lower()
         super().save(*args, **kwargs)
+
+
+class Application(models.Model):
+    class Stage(models.TextChoices):
+        APPLIED = "applied", "Applied"
+        SCREENING = "screening", "Screening"
+        INTERVIEW = "interview", "Interview"
+        FINAL_REVIEW = "final_review", "Final Review"
+        OFFER = "offer", "Offer"
+        HIRED = "hired", "Hired"
+        REJECTED = "rejected", "Rejected"
+        WITHDRAWN = "withdrawn", "Withdrawn"
+
+    candidate = models.ForeignKey(
+        Candidate, on_delete=models.CASCADE, related_name="applications"
+    )
+    opening = models.ForeignKey(
+        Opening, on_delete=models.CASCADE, related_name="applications"
+    )
+    stage = models.CharField(
+        max_length=20, choices=Stage.choices, default=Stage.APPLIED
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at", "-pk"]
+        constraints = [
+            models.UniqueConstraint(
+                fields=["candidate", "opening"], name="unique_candidate_opening"
+            )
+        ]
+
+    def __str__(self):
+        return f"{self.candidate} — {self.opening}"

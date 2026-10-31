@@ -2,7 +2,38 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 
-from .models import Candidate, Opening
+from .models import Application, Candidate, Opening
+
+
+class ApplicationForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["candidate"].queryset = Candidate.objects.filter(is_archived=False)
+        self.fields["opening"].queryset = Opening.objects.filter(
+            status=Opening.Status.OPEN
+        )
+        self.fields["candidate"].error_messages["invalid_choice"] = (
+            "Select an existing active candidate. "
+            "Archived candidates cannot receive new applications."
+        )
+        self.fields["opening"].error_messages["invalid_choice"] = (
+            "Select an existing open opening. "
+            "Closed openings cannot receive new applications."
+        )
+        self.fields["candidate"].label_from_instance = lambda candidate: (
+            f"{candidate.name} ({candidate.email})"
+        )
+        self.fields["opening"].label_from_instance = lambda opening: (
+            f"{opening.title} (#{opening.pk})"
+        )
+
+    class Meta:
+        model = Application
+        fields = ["candidate", "opening"]
+        widgets = {
+            "candidate": forms.Select(attrs={"class": "select w-full"}),
+            "opening": forms.Select(attrs={"class": "select w-full"}),
+        }
 
 
 class OpeningForm(forms.ModelForm):

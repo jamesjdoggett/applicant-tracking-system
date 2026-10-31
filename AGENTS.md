@@ -38,3 +38,5 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - List filters use GET forms with `q` and `status`; trim search input, validate status values, and preserve normalized selections in pagination links with Django's `{% querystring %}` tag.
 - Archive/restore actions use explicit target states and `save(update_fields=["is_archived"])` so repeated submissions are safe.
 - Opening forms use `ModelForm.save()` to persist skills; if using `commit=False`, call `save_m2m()` after saving the instance.
+- Application creation uses `ApplicationForm` with fresh eligible-record querysets on each request; query parameters preselect records, while validated POST fields determine the new pairing.
+- Related application lists use `select_related()` for the opposite parent to avoid per-row queries.
