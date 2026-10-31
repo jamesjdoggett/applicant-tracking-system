@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phase 1 passed automated checks and received user approval after browser-verification instructions. Phases 2–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–2 passed automated checks and received user approval after browser-verification instructions. Phases 3–10 have not started.
 
 ## Architectural decisions
 
@@ -53,10 +53,10 @@ Introduce `Candidate` and its migration. Deliver a basic paginated active-candid
 
 ### Acceptance criteria
 
-- [ ] Staff can create, view, and edit all approved candidate fields; required fields and source choices are validated, and notes render as escaped plain text.
-- [ ] Email matching ignores surrounding whitespace and capitalization; duplicates are rejected on creation and editing, including collisions with archived records. An unchanged email remains valid on edit.
-- [ ] Automated tests cover field validation, normalized email storage and uniqueness, supported admin writes, pagination, and staff access.
-- [ ] Manual: create and edit a candidate, then attempt a duplicate with different case and surrounding spaces.
+- [x] Staff can create, view, and edit all approved candidate fields; required fields and source choices are validated, and notes render as escaped plain text.
+- [x] Email matching ignores surrounding whitespace and capitalization; duplicates are rejected on creation and editing, including collisions with archived records. An unchanged email remains valid on edit.
+- [x] Automated tests cover field validation, normalized email storage and uniqueness, supported admin writes, pagination, and staff access.
+- [x] Manual: create and edit a candidate, then attempt a duplicate with different case and surrounding spaces. User approved Phase 2 after receiving the browser-verification steps.
 
 ---
 

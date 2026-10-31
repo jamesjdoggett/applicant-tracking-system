@@ -15,6 +15,9 @@
       <nav class="navbar mx-auto max-w-5xl flex-wrap gap-3 px-4 sm:px-6" aria-label="Main navigation">
         <a class="flex-1 text-lg font-semibold tracking-tight" href="{% url 'recruiting:home' %}">Applicant Tracking System</a>
         {% if user.is_authenticated %}
+          {% if user.is_staff %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'recruiting:candidate_list' %}">Candidates</a>
+          {% endif %}
           <span class="text-sm text-base-content/70">{{ user.get_username }}</span>
           {% if user.is_superuser %}
             <a class="btn btn-ghost btn-sm" href="{% url 'admin:index' %}">Administration</a>

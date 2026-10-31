@@ -1,5 +1,34 @@
+from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
+
+from .models import Candidate
+
+
+class CandidateForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        for field in self.fields.values():
+            if isinstance(field.widget, forms.Textarea):
+                field.widget.attrs.update({"class": "textarea w-full", "rows": 6})
+            elif isinstance(field.widget, forms.Select):
+                field.widget.attrs["class"] = "select w-full"
+            else:
+                field.widget.attrs["class"] = "input w-full"
+
+    def clean_email(self):
+        return self.cleaned_data["email"].strip().lower()
+
+    class Meta:
+        model = Candidate
+        fields = [
+            "name",
+            "email",
+            "recruitment_source",
+            "phone",
+            "source_details",
+            "notes",
+        ]
 
 
 class StaffAuthenticationForm(AuthenticationForm):

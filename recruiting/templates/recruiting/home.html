@@ -6,6 +6,9 @@
       <p class="text-sm font-medium text-primary">Staff workspace</p>
       <h1 id="welcome-title" class="text-3xl font-semibold tracking-tight">Welcome, {{ user.get_username }}.</h1>
       <p class="max-w-xl text-base-content/70">You are signed in to the Applicant Tracking System.</p>
+      <div class="card-actions">
+        <a class="btn btn-primary" href="{% url 'recruiting:candidate_list' %}">View candidates</a>
+      </div>
       {% if user.is_superuser %}
         <div class="card-actions mt-2">
           <a class="btn btn-primary" href="{% url 'admin:auth_user_changelist' %}">Manage staff accounts</a>

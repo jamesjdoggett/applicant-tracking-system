@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ candidate.name }} | Applicant Tracking System{% endblock %}
+{% block content %}
+  <a class="link link-primary" href="{% url 'recruiting:candidate_list' %}">Back to candidates</a>
+  <section class="card mt-4 border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body p-6 sm:p-10">
+      <div class="flex flex-wrap items-center justify-between gap-4">
+        <h1 class="break-words text-3xl font-semibold">{{ candidate.name }}</h1>
+        <a class="btn btn-primary" href="{% url 'recruiting:candidate_edit' candidate.pk %}">Edit candidate</a>
+      </div>
+      {% if candidate.is_archived %}<p class="badge badge-neutral">Archived</p>{% endif %}
+      <dl class="mt-6 space-y-5">
+        <div><dt class="font-semibold">Email</dt><dd class="break-words">{{ candidate.email }}</dd></div>
+        <div><dt class="font-semibold">Phone</dt><dd>{{ candidate.phone|default:"Not provided" }}</dd></div>
+        <div><dt class="font-semibold">Recruitment source</dt><dd>{{ candidate.get_recruitment_source_display }}</dd></div>
+        <div><dt class="font-semibold">Source details</dt><dd class="whitespace-pre-wrap break-words">{{ candidate.source_details|default:"Not provided" }}</dd></div>
+        <div><dt class="font-semibold">Internal notes</dt><dd class="whitespace-pre-wrap break-words">{{ candidate.notes|default:"No notes" }}</dd></div>
+      </dl>
+    </div>
+  </section>
+{% endblock %}

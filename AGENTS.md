@@ -32,3 +32,6 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Checks: `uv run pytest`, `uv run ruff check .`, and `uv run ruff format --check .`.
 - CSS: edit `styles/app.css`; build with `uv run python -X utf8 manage.py tailwind build`; static assets live in `static/`.
 - Protect recruiting views with `recruiting.decorators.staff_required`; reuse the shared `base.html` template.
+- Candidate staff forms and `CandidateAdmin` share `recruiting.forms.CandidateForm`; keep validation shared.
+- `Candidate.save()` normalizes email; bulk writes bypass it and are not a supported candidate write path.
+- Django checks: `uv run python manage.py check` and `uv run python manage.py makemigrations --check --dry-run`.

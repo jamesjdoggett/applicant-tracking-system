@@ -5,6 +5,11 @@ CIDM 3312 Project #1: an internal staff-only Django application.
 Phase 1 provides staff sign-in/sign-out, a protected landing page, and account
 administration through Django admin. Browser verification was approved by the user.
 
+Phase 2 adds candidate creation, details, editing, and an active-candidate list
+with 20 records per page at `/candidates/`. Candidate emails are trimmed and
+lowercased, with duplicate validation shared by staff forms and Django admin.
+Phase 2 browser verification was approved by the user.
+
 ## Local setup
 
 Install uv and Python 3.14, then run these commands from the repository root:
@@ -55,6 +60,9 @@ uv run python -X utf8 manage.py tailwind build
 
 Tests cover staff-only access for ordinary and HTMX requests, sign-in errors,
 redirects, POST/CSRF-protected sign-out, and staff account creation through admin.
+Candidate tests cover field validation, normalized email uniqueness (including
+archived records), admin writes, escaped notes, pagination, staff access, and
+CSRF-protected creation and editing.
 
 ## Approved references
 

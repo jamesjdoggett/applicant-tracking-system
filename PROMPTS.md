@@ -1,5 +1,25 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 2 candidate entry and browsing
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 2 only.`
+3. Supplied the implement skill: follow the PRD and plan, use the TDD skill with required approvals, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+4. Answered `yes` to the two TDD selections: candidate email normalization/uniqueness and consistent admin email writes.
+5. Answered `yes` to the first RED checkpoint: the form saved mixed-case email instead of lowercase; approved implementing normalization and duplicate feedback.
+6. Answered `approved` to the first GREEN review after all 17 tests passed.
+7. Answered `yes` to the admin RED checkpoint: its default form accepted a case/whitespace duplicate of an archived candidate; approved sharing CandidateForm with admin.
+8. Answered `approved` to the admin GREEN review after all 18 tests passed.
+9. Approved Phase 2 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, project structure, and durable conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 2 logging here; review and staging of all Phase 2 changes; the exact commit message `Phase 2 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 3.
+
+### Summary
+
+- **Outcome:** Implemented Phase 2 only: Candidate model and initial migration; shared staff/admin form validation; normalized model saves and unique email storage; all required and optional candidate fields and four source categories; staff-only create/detail/edit pages; escaped plain-text notes; a stable active-candidate list with 20 records per page; and shared navigation links. All 58 tests passed, covering validation, duplicate creation/editing including archived collisions, unchanged-email edits, admin writes, database duplicate rejection, field persistence, pagination, staff access for ordinary/HTMX requests, CSRF, HTTP methods, and missing records. Ruff lint/format checks, Django system checks, migration consistency, and the CSS build passed. Applied the migration locally, provided browser-verification steps, and received Phase 2 approval. Updated README and plan status and added three durable lines to AGENTS.md. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No changes to Phase 2 scope. Paused for all required TDD and manual-verification approvals. No Phase 3 search, filtering, or staff archive/restore actions were implemented.
+- **Sideways:** Sandbox restrictions blocked uv cache access; reran required commands with approved escalation. Both TDD cycles failed on their intended assertions before implementation: mixed-case storage, then admin duplicate validation. Pytest initially warned that it could not write its cache; subsequent runs disabled that optional cache provider. Ruff formatted three files. No unresolved check failures remain.
+
 ## 2026-10-31 — Phase 1 staff authentication and project setup
 
 ### Prompts
