@@ -1,5 +1,26 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 8 inline stage changes with HTMX
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 8 only.`
+3. Supplied the implement skill: follow the approved documents and TDD approval checkpoints, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+4. Answered `yes` to selecting flexible stage transitions and filtered HTMX updates for TDD.
+5. Answered `yes` to the transition RED checkpoint: posting Applied for a Screening application returned HTTP 200 but left its stage unchanged; approved the test of all 64 transitions under active/open and archived/closed conditions.
+6. Answered `approved` to the transition GREEN review after all 178 pipeline/application tests passed.
+7. Answered `yes` to the filtered HTMX RED checkpoint: the stage saved but the response lacked success feedback and returned a full page; approved requiring the current filters, a results fragment, and empty-result feedback when the sole matching row leaves the selected stage.
+8. Answered `approved` to the filtered HTMX GREEN review after all 179 pipeline/application tests passed.
+9. Reported: `I do not see "Applications" on the home page. Please ensure the feature has been added and specify where to find it on the webpage.`
+10. Approved Phase 8. Requested review of AGENTS.md with only important verified commands, project structure, and durable architectural conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 8 logging here; review and staging of all Phase 8 changes; the exact commit message `Phase 8 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 9.
+
+### Summary
+
+- **Outcome:** Implemented Phase 8 only: inline stage dropdowns with CSRF-protected staff-only POST updates; validation accepting all eight stages with only the stage field saved; all 64 transitions supported for active/open and archived/closed records; shared pipeline filter context and results fragment; HTMX replacement of the table, result count, success/error feedback, and empty-result message while retaining active search/opening/stage filters. Invalid stages preserve stored data, and forged pairing/date fields are ignored. Renamed navigation to Applications and the home link to View applications after the user's discoverability feedback. All 320 tests passed, including the transition matrix, filtered fragments, invalid input, immutable pairing/date, access control, POST-only methods, CSRF, and missing records. Ruff lint/format, Django system checks, migration consistency, and CSS build passed; no migrations were pending. User approved Phase 8 after receiving browser-verification instructions. Added two durable conventions to AGENTS.md and marked Phase 8 approved in the plan. Finalization uses the requested commit message; commit hash and push result are reported after Git verification.
+- **Deviations:** No changes to approved Phase 8 scope. Paused at the TDD selection, both RED/GREEN reviews, and manual-verification checkpoint. Clarified Applications labels at the user's request. No Phase 9 work was started.
+- **Sideways:** Initial reads assumed tests were in a tests directory; located the existing recruiting/test_pipeline.py. Sandbox restrictions blocked uv cache access, so checks were rerun with approved escalation. Both selected TDD tests failed on intended assertions before implementation made them pass. Initial pytest cache-write warnings were avoided in subsequent runs with the optional cache provider disabled. Updated the existing home-link assertion for the clarified label. Final checks have no unresolved failures.
+
 ## 2026-10-31 — Phase 7 searchable and filterable pipeline
 
 ### Prompts

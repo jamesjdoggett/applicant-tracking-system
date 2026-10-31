@@ -1,4 +1,5 @@
 import pytest
+from django.test import Client
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
@@ -117,7 +118,7 @@ def test_pipeline_rows_include_archived_closed_records_and_detail_links(
     created = timezone.localtime(first.created_at)
     assert date_format(created, "M j, Y").encode() in response.content
     assert f"#{first.opening_id}, Closed".encode() in response.content
-    assert b"View pipeline" in client.get(reverse("recruiting:home")).content
+    assert b"View applications" in client.get(reverse("recruiting:home")).content
 
 
 def test_pipeline_empty_feedback_and_reset(client, django_user_model):
@@ -147,3 +148,203 @@ def test_pipeline_requires_staff(client, django_user_model, htmx, identity, stat
 def test_pipeline_is_read_only(client, pipeline):
     assert client.post(reverse("recruiting:application_list")).status_code == 405
     assert Application.objects.count() == 3
+
+
+@pytest.mark.parametrize("initial_stage", Application.Stage.values)
+@pytest.mark.parametrize("target_stage", Application.Stage.values)
+@pytest.mark.parametrize("archived,closed", [(False, False), (True, True)])
+def test_stage_changes_allow_every_transition(
+    client, pipeline, initial_stage, target_stage, archived, closed
+):
+    application, _, _ = pipeline
+    application.candidate.is_archived = archived
+    application.candidate.save(update_fields=["is_archived"])
+    application.opening.status = "closed" if closed else "open"
+    application.opening.save(update_fields=["status"])
+    application.stage = initial_stage
+    application.save(update_fields=["stage"])
+
+    response = client.post(
+        reverse("recruiting:application_stage", args=[application.pk]),
+        {"stage": target_stage},
+        HTTP_HX_REQUEST="true",
+    )
+
+    assert response.status_code == 200
+    application.refresh_from_db()
+    assert application.stage == target_stage
+
+
+def test_stage_change_returns_current_filtered_fragment(client, pipeline):
+    application, _, _ = pipeline
+    url = reverse("recruiting:application_stage", args=[application.pk])
+    response = client.post(
+        f"{url}?q=++Alex++&opening={application.opening_id}&stage=hired",
+        {"stage": "interview"},
+        HTTP_HX_REQUEST="true",
+    )
+
+    assert response.status_code == 200
+    assert b"Stage updated to Interview." in response.content
+    assert b'id="pipeline-results"' in response.content
+    assert b"No applications match these filters" in response.content
+    assert list(response.context["applications"]) == []
+    assert response.context["query"] == "Alex"
+    assert response.context["opening_filter"] == str(application.opening_id)
+    assert response.context["stage"] == "hired"
+    assert b"<html" not in response.content
+    application.refresh_from_db()
+    assert application.stage == "interview"
+
+
+@pytest.mark.parametrize("data", [{}, {"stage": ""}, {"stage": "invalid"}])
+def test_invalid_stage_shows_error_and_preserves_application(client, pipeline, data):
+    application, _, _ = pipeline
+    original = (application.stage, application.candidate_id, application.opening_id)
+    response = client.post(
+        reverse("recruiting:application_stage", args=[application.pk]),
+        data,
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 200
+    assert b"Stage was not changed. Select a valid stage." in response.content
+    assert b'role="alert"' in response.content
+    assert b"<html" not in response.content
+    application.refresh_from_db()
+    assert (
+        application.stage,
+        application.candidate_id,
+        application.opening_id,
+    ) == original
+    assert f'value="{application.stage}" selected'.encode() in response.content
+
+
+def test_stage_endpoint_ignores_pairing_and_date_overrides(client, pipeline):
+    application, _, other = pipeline
+    original = (
+        application.candidate_id,
+        application.opening_id,
+        application.created_at,
+    )
+    response = client.post(
+        reverse("recruiting:application_stage", args=[application.pk]),
+        {
+            "stage": "offer",
+            "candidate": other.candidate_id,
+            "opening": other.opening_id,
+            "created_at": "2000-01-01",
+        },
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 200
+    application.refresh_from_db()
+    assert application.stage == "offer"
+    assert (
+        application.candidate_id,
+        application.opening_id,
+        application.created_at,
+    ) == original
+    other.refresh_from_db()
+    assert other.stage == "hired"
+
+
+@pytest.mark.parametrize("htmx", [False, True])
+@pytest.mark.parametrize("identity,status", [("anonymous", 302), ("nonstaff", 403)])
+def test_stage_endpoint_requires_staff(
+    client, pipeline, django_user_model, htmx, identity, status
+):
+    application, _, _ = pipeline
+    client.logout()
+    if identity == "nonstaff":
+        client.force_login(django_user_model.objects.create_user(username="nonstaff"))
+    response = client.post(
+        reverse("recruiting:application_stage", args=[application.pk]),
+        {"stage": "interview"},
+        HTTP_HX_REQUEST="true" if htmx else "false",
+    )
+    assert response.status_code == status
+    application.refresh_from_db()
+    assert application.stage == "hired"
+
+
+@pytest.mark.parametrize("method", ["get", "head", "put", "patch", "delete"])
+def test_stage_endpoint_requires_post(client, pipeline, method):
+    application, _, _ = pipeline
+    response = getattr(client, method)(
+        reverse("recruiting:application_stage", args=[application.pk]),
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 405
+    application.refresh_from_db()
+    assert application.stage == "hired"
+
+
+def test_stage_endpoint_requires_csrf(client, pipeline):
+    application, _, _ = pipeline
+    protected = Client(enforce_csrf_checks=True)
+    protected.cookies = client.cookies.copy()
+    url = reverse("recruiting:application_stage", args=[application.pk])
+    assert (
+        protected.post(url, {"stage": "interview"}, HTTP_HX_REQUEST="true").status_code
+        == 403
+    )
+    application.refresh_from_db()
+    assert application.stage == "hired"
+    protected.get(reverse("recruiting:application_list"))
+    token = protected.cookies["csrftoken"].value
+    assert (
+        protected.post(
+            url, {"stage": "interview"}, HTTP_HX_REQUEST="true", HTTP_X_CSRFTOKEN=token
+        ).status_code
+        == 200
+    )
+    application.refresh_from_db()
+    assert application.stage == "interview"
+
+
+def test_stage_fragment_preserves_filters_and_inline_controls(client, pipeline):
+    application, _, _ = pipeline
+    url = reverse("recruiting:application_stage", args=[application.pk])
+    response = client.post(
+        f"{url}?q=Alex&opening={application.opening_id}&stage=hired",
+        {"stage": "hired"},
+        HTTP_HX_REQUEST="true",
+    )
+    assert list(response.context["applications"]) == [application]
+    action = f"{url}?q=Alex&amp;opening={application.opening_id}&amp;stage=hired"
+    assert f'hx-post="{action}"'.encode() in response.content
+    for attribute in [
+        'hx-trigger="change"',
+        'hx-target="#pipeline-results"',
+        'hx-swap="outerHTML"',
+        'name="csrfmiddlewaretoken"',
+    ]:
+        assert attribute.encode() in response.content
+    for value, label in Application.Stage.choices:
+        assert f'value="{value}"'.encode() in response.content
+        assert label.encode() in response.content
+
+
+def test_stage_response_normalizes_invalid_filters_and_handles_missing_record(
+    client, pipeline
+):
+    application, _, _ = pipeline
+    url = reverse("recruiting:application_stage", args=[application.pk])
+    response = client.post(
+        f"{url}?q=++&opening=invalid&stage=invalid",
+        {"stage": "interview"},
+        HTTP_HX_REQUEST="true",
+    )
+    assert response.status_code == 200
+    assert len(response.context["applications"]) == 3
+    assert response.context["query"] == ""
+    assert response.context["opening_filter"] == ""
+    assert response.context["stage"] == ""
+    assert (
+        client.post(
+            reverse("recruiting:application_stage", args=[999999]),
+            {"stage": "interview"},
+            HTTP_HX_REQUEST="true",
+        ).status_code
+        == 404
+    )

@@ -5,6 +5,11 @@ from . import views
 app_name = "recruiting"
 
 urlpatterns = [
+    path(
+        "applications/<int:pk>/stage/",
+        views.application_stage,
+        name="application_stage",
+    ),
     path("applications/", views.application_list, name="application_list"),
     path("applications/new/", views.application_create, name="application_create"),
     path("openings/", views.opening_list, name="opening_list"),

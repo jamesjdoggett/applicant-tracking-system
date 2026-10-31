@@ -5,6 +5,10 @@ from django.core.exceptions import ValidationError
 from .models import Application, Candidate, Opening
 
 
+class ApplicationStageForm(forms.Form):
+    stage = forms.ChoiceField(choices=Application.Stage.choices)
+
+
 class ApplicationForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

@@ -10,13 +10,41 @@ from django.views.decorators.http import (
 )
 
 from .decorators import staff_required
-from .forms import ApplicationForm, CandidateForm, OpeningForm
+from .forms import ApplicationForm, ApplicationStageForm, CandidateForm, OpeningForm
 from .models import Application, Candidate, Opening
+
+
+@staff_required
+@require_POST
+def application_stage(request, pk):
+    application = get_object_or_404(Application, pk=pk)
+    form = ApplicationStageForm(request.POST)
+    if form.is_valid():
+        application.stage = form.cleaned_data["stage"]
+        application.save(update_fields=["stage"])
+        feedback = f"Stage updated to {application.get_stage_display()}."
+    else:
+        feedback = "Stage was not changed. Select a valid stage."
+    return render(
+        request,
+        "recruiting/partials/pipeline_results.html",
+        {
+            **_pipeline_context(request),
+            "feedback": feedback,
+            "stage_error": not form.is_valid(),
+        },
+    )
 
 
 @staff_required
 @require_safe
 def application_list(request):
+    return render(
+        request, "recruiting/application_list.html", _pipeline_context(request)
+    )
+
+
+def _pipeline_context(request):
     query = request.GET.get("q", "").strip()
     opening = request.GET.get("opening", "")
     openings = Opening.objects.all()
@@ -34,18 +62,14 @@ def application_list(request):
         applications = applications.filter(opening_id=opening)
     if stage:
         applications = applications.filter(stage=stage)
-    return render(
-        request,
-        "recruiting/application_list.html",
-        {
-            "applications": applications,
-            "query": query,
-            "opening_filter": opening,
-            "stage": stage,
-            "openings": openings,
-            "stages": Application.Stage.choices,
-        },
-    )
+    return {
+        "applications": applications,
+        "query": query,
+        "opening_filter": opening,
+        "stage": stage,
+        "openings": openings,
+        "stages": Application.Stage.choices,
+    }
 
 
 @staff_required

@@ -42,3 +42,5 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Related application lists use `select_related()` for the opposite parent to avoid per-row queries.
 - Pipeline queries use `select_related("candidate", "opening")`; GET filters are `q`, `opening` (record ID), and `stage`, with invalid filter values normalized to all records.
 - Opening labels in the pipeline include record IDs to distinguish identical titles.
+- Stage updates validate with `ApplicationStageForm` and save only `stage` using `update_fields`; pairing fields are never accepted.
+- Pipeline pages and stage responses share `_pipeline_context()` and `recruiting/partials/pipeline_results.html`; HTMX posts retain GET filters and replace `#pipeline-results`, including feedback and the result count.

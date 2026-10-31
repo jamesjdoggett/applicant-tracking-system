@@ -1,10 +1,9 @@
 {% extends "base.html" %}
-{% block title %}Pipeline | Applicant Tracking System{% endblock %}
+{% block title %}Applications | Applicant Tracking System{% endblock %}
 {% block content %}
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
-      <h1 class="text-3xl font-semibold">Pipeline</h1>
-      <p class="mt-2 text-base-content/70">{{ applications|length }} results</p>
+      <h1 class="text-3xl font-semibold">Application pipeline</h1>
     </div>
     <a class="btn btn-primary" href="{% url 'recruiting:application_create' %}">New application</a>
   </div>
@@ -34,26 +33,5 @@
     <button class="btn btn-primary" type="submit">Filter applications</button>
     <a class="btn btn-ghost" href="{% url 'recruiting:application_list' %}">Reset filters</a>
   </form>
-  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
-    <table class="table">
-      <caption class="sr-only">Application pipeline</caption>
-      <thead><tr><th scope="col">Candidate</th><th scope="col">Email</th><th scope="col">Opening</th><th scope="col">Stage</th><th scope="col">Created</th></tr></thead>
-      <tbody>
-        {% for application in applications %}
-          <tr>
-            <td><a class="link link-primary" href="{% url 'recruiting:candidate_detail' application.candidate_id %}">{{ application.candidate.name }}</a></td>
-            <td>{{ application.candidate.email }}</td>
-            <td><a class="link link-primary" href="{% url 'recruiting:opening_detail' application.opening_id %}">{{ application.opening.title }} (#{{ application.opening_id }})</a></td>
-            <td>{{ application.get_stage_display }}</td>
-            <td><time datetime="{{ application.created_at|date:'c' }}">{{ application.created_at|date:"M j, Y" }}</time></td>
-          </tr>
-        {% empty %}
-          <tr><td colspan="5" class="py-8 text-center">
-            {% if query or opening_filter or stage %}No applications match these filters. Change your filters or reset them above.
-            {% else %}No applications yet. Create an application to get started.{% endif %}
-          </td></tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  {% include "recruiting/partials/pipeline_results.html" %}
 {% endblock %}

@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–7 passed automated checks and received user approval after browser-verification instructions. Phases 8–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–8 passed automated checks and received user approval after browser-verification instructions. Phases 9–10 have not started.
 
 ## Architectural decisions
 
@@ -157,11 +157,11 @@ Add inline stage dropdowns and a protected HTMX POST endpoint. Permit every vali
 
 ### Acceptance criteria
 
-- [ ] Dropdown changes persist without full-page reloads and visibly report success or validation failure; invalid stages do not alter stored data.
-- [ ] Changes work across all eight stages, including terminal-to-active changes, archived candidates, and closed openings. Closing/reopening never changes stages automatically.
-- [ ] The returned fragment reflects current filters, including an empty-result message when the last matching row leaves the selected stage.
-- [ ] Automated tests cover the transition matrix, HTMX fragment responses, filter consistency, invalid input, staff access, POST-only behavior, and CSRF protection. Pairing fields cannot be changed through this endpoint.
-- [ ] Manual: change stages forward and backward, leave a terminal stage, then change the last row under a stage filter and verify feedback and row removal without a reload.
+- [x] Dropdown changes persist without full-page reloads and visibly report success or validation failure; invalid stages do not alter stored data.
+- [x] Changes work across all eight stages, including terminal-to-active changes, archived candidates, and closed openings. Closing/reopening never changes stages automatically.
+- [x] The returned fragment reflects current filters, including an empty-result message when the last matching row leaves the selected stage.
+- [x] Automated tests cover the transition matrix, HTMX fragment responses, filter consistency, invalid input, staff access, POST-only behavior, and CSRF protection. Pairing fields cannot be changed through this endpoint.
+- [x] Manual: change stages forward and backward, leave a terminal stage, then change the last row under a stage filter and verify feedback and row removal without a reload. User approved Phase 8 after receiving browser-verification steps and clearer Applications navigation.
 
 ---
 

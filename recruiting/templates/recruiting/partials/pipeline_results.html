@@ -1,0 +1,40 @@
+<div id="pipeline-results" aria-live="polite">
+  {% if feedback %}
+    <p class="alert {% if stage_error %}alert-error{% else %}alert-success{% endif %} mb-4" role="{% if stage_error %}alert{% else %}status{% endif %}">{{ feedback }}</p>
+  {% endif %}
+  <p class="mb-4 text-base-content/70">{{ applications|length }} results</p>
+  <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
+    <table class="table">
+      <caption class="sr-only">Application pipeline</caption>
+      <thead><tr><th scope="col">Candidate</th><th scope="col">Email</th><th scope="col">Opening</th><th scope="col">Stage</th><th scope="col">Created</th></tr></thead>
+      <tbody>
+        {% for application in applications %}
+          <tr>
+            <td><a class="link link-primary" href="{% url 'recruiting:candidate_detail' application.candidate_id %}">{{ application.candidate.name }}</a></td>
+            <td>{{ application.candidate.email }}</td>
+            <td><a class="link link-primary" href="{% url 'recruiting:opening_detail' application.opening_id %}">{{ application.opening.title }} (#{{ application.opening_id }})</a></td>
+            <td>
+              <form method="post" action="{% url 'recruiting:application_stage' application.pk %}{% querystring %}"
+                    hx-post="{% url 'recruiting:application_stage' application.pk %}{% querystring %}"
+                    hx-trigger="change" hx-target="#pipeline-results" hx-swap="outerHTML" hx-sync="#pipeline-results:queue all">
+                {% csrf_token %}
+                <label class="sr-only" for="stage-{{ application.pk }}">Stage for {{ application.candidate.name }} at {{ application.opening.title }} (#{{ application.opening_id }})</label>
+                <select class="select select-bordered" id="stage-{{ application.pk }}" name="stage">
+                  {% for value, label in stages %}
+                    <option value="{{ value }}" {% if application.stage == value %}selected{% endif %}>{{ label }}</option>
+                  {% endfor %}
+                </select>
+              </form>
+            </td>
+            <td><time datetime="{{ application.created_at|date:'c' }}">{{ application.created_at|date:"M j, Y" }}</time></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="py-8 text-center">
+            {% if query or opening_filter or stage %}No applications match these filters. Change your filters or reset them above.
+            {% else %}No applications yet. Create an application to get started.{% endif %}
+          </td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
