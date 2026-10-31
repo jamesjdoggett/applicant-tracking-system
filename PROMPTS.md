@@ -1,3 +1,22 @@
+## 2026-10-31 — Phase 10 guarded opening deletion
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 10 only.`
+3. Supplied the implement skill, requiring TDD approval checkpoints, feedback checks, browser verification and confirmation, then logging, commit, and push.
+4. Answered `yes` to selecting deletion eligibility and submission-time stage rechecking for TDD.
+5. Answered `yes` to the eligibility RED checkpoint: all 18 cases failed assertions against the placeholder endpoint; approved checking both opening statuses with no applications or each of the eight stages.
+6. Answered `approved` to the eligibility GREEN review after 146 deletion, opening, and application tests passed.
+7. Answered `yes` to reviewing the submission-time recheck test, which passed immediately with the approved guard: confirmation for a Hired application followed by changing it to Interview through the stage endpoint blocks deletion and preserves records.
+8. Approved Phase 10 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, structure, and durable conventions; no more than five added lines and a final maximum target of 60–80 lines; accurate Phase 10 logging; review and staging of all Phase 10 changes; the exact commit message `Phase 10 Complete`; and a GitHub push with success confirmation. Prohibited additional implementation.
+
+### Summary
+
+- **Outcome:** Implemented Phase 10 only: Delete opening link, staff-protected GET/POST confirmation showing opening title/ID/status and all affected application IDs, candidate names/emails, and stages. Empty openings and exclusively terminal applications permit deletion for either opening status; nonterminal applications block it with visible feedback. Current stages are checked within a transaction at submission; deletion cascades to applications and preserves candidates, shared skills, and unrelated records. Added 34 tests covering all stages and statuses, mixed stages, stale confirmation, confirmation/cancellation, cascades, archived candidates, access including HTMX, unsupported methods, missing records, and CSRF. All 397 tests passed, along with Ruff lint/format, Django checks, migration consistency, local migration application, and the CSS build. No migrations were pending. User approved Phase 10 after browser-verification instructions. Added one durable line to AGENTS.md and marked all phases approved in the plan. Commit and push verification are reported after Git operations.
+- **Deviations:** The second selected behavior already passed with the first implementation; reported that openly instead of introducing an artificial failure, and obtained approval before continuing. No additional implementation was started.
+- **Sideways:** Exploratory reads assumed a tests directory and a separate deletion test module that did not exist; located the existing test modules. Sandbox access blocked uv's external cache, so checks used approved escalation. Initial pytest cache-write warnings were avoided in the final full run by disabling the optional cache provider. No unresolved check failures remain.
+
 ## 2026-10-31 — Phase 9 confirmed application deletion
 
 ### Prompts

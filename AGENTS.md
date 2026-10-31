@@ -45,3 +45,4 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Stage updates validate with `ApplicationStageForm` and save only `stage` using `update_fields`; pairing fields are never accepted.
 - Pipeline pages and stage responses share `_pipeline_context()` and `recruiting/partials/pipeline_results.html`; HTMX posts retain GET filters and replace `#pipeline-results`, including feedback and the result count.
 - Application deletion uses one staff-protected GET/POST view: GET renders `application_confirm_delete.html`; only POST deletes the selected `Application` and redirects to the pipeline.
+- Opening deletion uses `opening_delete` and `opening_confirm_delete.html`; recheck current application stages and delete inside `transaction.atomic()`, with `select_related("candidate")` for confirmation rows.

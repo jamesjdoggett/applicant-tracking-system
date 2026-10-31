@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–9 passed automated checks and received user approval after browser-verification instructions. Phase 10 has not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. All ten phases passed automated checks and received user approval after browser-verification instructions.
 
 ## Architectural decisions
 
@@ -192,11 +192,11 @@ Add opening deletion with a confirmation page showing all applications that will
 
 ### Acceptance criteria
 
-- [ ] Empty openings and openings with only terminal applications can be deleted whether Open or Closed; any nonterminal application blocks deletion.
-- [ ] Confirmation identifies the opening and all affected applications. GET and cancellation leave records intact, and a newly nonterminal application blocks a previously eligible confirmation submission.
-- [ ] Successful deletion removes the opening and its applications while retaining candidates and shared skills.
-- [ ] Automated tests cover every stage's eligibility, mixed stages, both opening statuses, submission-time rechecks, confirmation contents, cascade effects, POST/CSRF restrictions, and staff access.
-- [ ] Manual: try deletion with an active application, make all applications terminal and inspect confirmation, change one back before submitting to verify rejection, then complete an eligible deletion.
+- [x] Empty openings and openings with only terminal applications can be deleted whether Open or Closed; any nonterminal application blocks deletion.
+- [x] Confirmation identifies the opening and all affected applications. GET and cancellation leave records intact, and a newly nonterminal application blocks a previously eligible confirmation submission.
+- [x] Successful deletion removes the opening and its applications while retaining candidates and shared skills.
+- [x] Automated tests cover every stage's eligibility, mixed stages, both opening statuses, submission-time rechecks, confirmation contents, cascade effects, POST/CSRF restrictions, and staff access. All 397 tests, Ruff lint/format, Django checks, migration consistency, and CSS build pass.
+- [x] Manual: try deletion with an active application, make all applications terminal and inspect confirmation, change one back before submitting to verify rejection, then complete an eligible deletion. User approved Phase 10 after receiving browser-verification instructions.
 
 ## Workload and coverage review
 

@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Delete opening | Applicant Tracking System{% endblock %}
+{% block content %}
+  <section class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body p-6 sm:p-10">
+      <h1 class="text-3xl font-semibold">Delete opening?</h1>
+      <p>{{ opening.title }} (#{{ opening.pk }}) — {{ opening.get_status_display }}</p>
+      {% if can_delete %}
+        <p>This permanently deletes the opening and all applications listed below. Candidates and shared skills will be kept.</p>
+      {% else %}
+        <p class="alert alert-error" role="alert">This opening cannot be deleted because it has nonterminal applications. Every application must be Hired, Rejected, or Withdrawn.</p>
+      {% endif %}
+      <div class="overflow-x-auto">
+        <table class="table">
+          <caption>Applications that will be deleted with this opening</caption>
+          <thead><tr><th scope="col">Application</th><th scope="col">Candidate</th><th scope="col">Stage</th></tr></thead>
+          <tbody>
+            {% for application in applications %}
+              <tr><td>#{{ application.pk }}</td><td>{{ application.candidate.name }} ({{ application.candidate.email }})</td><td>{{ application.get_stage_display }}</td></tr>
+            {% empty %}<tr><td colspan="3">No applications.</td></tr>{% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <form method="post" action="{% url 'recruiting:opening_delete' opening.pk %}" class="mt-4 flex flex-wrap gap-3">
+        {% csrf_token %}
+        {% if can_delete %}<button class="btn btn-error" type="submit">Delete opening and applications</button>{% endif %}
+        <a class="btn btn-outline" href="{% url 'recruiting:opening_detail' opening.pk %}">Cancel</a>
+      </form>
+    </div>
+  </section>
+{% endblock %}

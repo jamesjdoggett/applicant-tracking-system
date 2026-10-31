@@ -5,6 +5,7 @@ from . import views
 app_name = "recruiting"
 
 urlpatterns = [
+    path("openings/<int:pk>/delete/", views.opening_delete, name="opening_delete"),
     path(
         "applications/<int:pk>/delete/",
         views.application_delete,

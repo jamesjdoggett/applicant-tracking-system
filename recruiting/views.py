@@ -16,6 +16,33 @@ from .models import Application, Candidate, Opening
 
 @staff_required
 @require_http_methods(["GET", "POST"])
+def opening_delete(request, pk):
+    with transaction.atomic():
+        opening = get_object_or_404(Opening, pk=pk)
+        applications = opening.applications.select_related("candidate")
+        can_delete = not applications.exclude(
+            stage__in=[
+                Application.Stage.HIRED,
+                Application.Stage.REJECTED,
+                Application.Stage.WITHDRAWN,
+            ]
+        ).exists()
+        if request.method == "POST" and can_delete:
+            opening.delete()
+            return redirect("recruiting:opening_list")
+        return render(
+            request,
+            "recruiting/opening_confirm_delete.html",
+            {
+                "opening": opening,
+                "applications": applications,
+                "can_delete": can_delete,
+            },
+        )
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
 def application_delete(request, pk):
     application = get_object_or_404(
         Application.objects.select_related("candidate", "opening"), pk=pk

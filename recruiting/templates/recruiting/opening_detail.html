@@ -7,6 +7,7 @@
       <div class="flex flex-wrap items-center justify-between gap-4">
         <h1 class="break-words text-3xl font-semibold">{{ opening.title }}</h1>
         <a class="btn btn-primary" href="{% url 'recruiting:opening_edit' opening.pk %}">Edit opening</a>
+        <a class="btn btn-outline btn-error" href="{% url 'recruiting:opening_delete' opening.pk %}">Delete opening</a>
       </div>
       <dl class="mt-6 space-y-5">
         <div><dt class="font-semibold">Status</dt><dd>{{ opening.get_status_display }}</dd></div>
