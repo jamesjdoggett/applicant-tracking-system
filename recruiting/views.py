@@ -8,8 +8,47 @@ from django.views.decorators.http import (
 )
 
 from .decorators import staff_required
-from .forms import CandidateForm
-from .models import Candidate
+from .forms import CandidateForm, OpeningForm
+from .models import Candidate, Opening
+
+
+@staff_required
+@require_safe
+def opening_list(request):
+    page = Paginator(Opening.objects.all(), 20).get_page(request.GET.get("page"))
+    return render(request, "recruiting/opening_list.html", {"page_obj": page})
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def opening_create(request):
+    form = OpeningForm(request.POST if request.method == "POST" else None)
+    if request.method == "POST" and form.is_valid():
+        opening = form.save()
+        return redirect("recruiting:opening_detail", pk=opening.pk)
+    return render(request, "recruiting/opening_form.html", {"form": form})
+
+
+@staff_required
+@require_http_methods(["GET", "POST"])
+def opening_edit(request, pk):
+    opening = get_object_or_404(Opening, pk=pk)
+    form = OpeningForm(
+        request.POST if request.method == "POST" else None, instance=opening
+    )
+    if request.method == "POST" and form.is_valid():
+        form.save()
+        return redirect("recruiting:opening_detail", pk=opening.pk)
+    return render(
+        request, "recruiting/opening_form.html", {"form": form, "opening": opening}
+    )
+
+
+@staff_required
+@require_safe
+def opening_detail(request, pk):
+    opening = get_object_or_404(Opening, pk=pk)
+    return render(request, "recruiting/opening_detail.html", {"opening": opening})
 
 
 @staff_required

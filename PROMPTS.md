@@ -1,5 +1,23 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 4 openings and shared skills
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 4 only.`
+3. Supplied the implement skill: follow the PRD and plan, use the TDD skill with required approvals, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+4. Answered `yes` to selecting opening skill persistence, replacement, and clearing for TDD.
+5. Answered `approved` to the RED checkpoint: the opening saved but its selected skills were missing; approved the test covering creation with multiple skills, replacement on edit, and clearing the selection.
+6. Answered `approved` to the GREEN review after the selected test and existing regression tests passed (82 total).
+7. Approved Phase 4 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, project structure, and durable conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 4 logging here; review and staging of all Phase 4 changes; the exact commit message `Phase 4 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 5.
+
+### Summary
+
+- **Outcome:** Implemented Phase 4 only: Opening and Skill models and migration; unique skill names; optional many-to-many skills; staff-only opening create/detail/edit pages and a stable paginated list; required title/description and validated Open/Closed status; conventional multiple-selection input with selection guidance; admin skill management; and shared navigation. All 118 tests passed, covering required fields, invalid choices, skill persistence/replacement/clearing, duplicate titles, database and admin skill uniqueness, admin editing/deletion, escaped descriptions, pagination, ordinary/HTMX access control, CSRF, allowed methods, and missing records. Ruff lint/format, Django system checks, migration consistency, and the CSS build passed. Applied the migration locally. User approved Phase 4 after browser-verification instructions. Added one durable ModelForm/M2M convention to AGENTS.md and marked Phase 4 approved in the plan. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No changes to Phase 4 scope. Paused at the required TDD selection, RED, GREEN, and manual-verification checkpoints. No Phase 5 search or status filtering was started.
+- **Sideways:** Sandbox restrictions blocked uv cache access; reran commands with approved escalation. The selected TDD test failed on the expected missing-skills assertion; using ModelForm.save() persisted the relationship and made the test pass. Pytest emitted an optional cache-write warning while all tests passed. Ruff formatted four files; final lint and formatting checks passed.
+
 ## 2026-10-31 — Phase 3 candidate search, archiving, and restoration
 
 ### Prompts

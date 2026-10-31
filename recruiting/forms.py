@@ -2,7 +2,21 @@ from django import forms
 from django.contrib.auth.forms import AuthenticationForm
 from django.core.exceptions import ValidationError
 
-from .models import Candidate
+from .models import Candidate, Opening
+
+
+class OpeningForm(forms.ModelForm):
+    class Meta:
+        model = Opening
+        fields = ["title", "description", "status", "skills"]
+        widgets = {
+            "title": forms.TextInput(attrs={"class": "input w-full"}),
+            "description": forms.Textarea(
+                attrs={"class": "textarea w-full", "rows": 6}
+            ),
+            "status": forms.Select(attrs={"class": "select w-full"}),
+            "skills": forms.SelectMultiple(attrs={"class": "select w-full", "size": 6}),
+        }
 
 
 class CandidateForm(forms.ModelForm):

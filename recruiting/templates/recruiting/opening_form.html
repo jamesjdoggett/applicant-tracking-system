@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}{% if opening %}Edit opening{% else %}New opening{% endif %} | Applicant Tracking System{% endblock %}
+{% block content %}
+  <section class="card mx-auto max-w-2xl border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body p-6 sm:p-10">
+      <h1 class="text-3xl font-semibold">{% if opening %}Edit opening{% else %}New opening{% endif %}</h1>
+      <p class="text-base-content/70">Title, description, and status are required. Skills are optional.</p>
+      <form method="post" class="mt-4 space-y-5">
+        {% csrf_token %}
+        {% if form.errors %}<div class="alert alert-error" role="alert">Please correct the errors below.{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+          <div>
+            <label class="mb-2 block font-medium" for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="font-normal text-base-content/70">(optional)</span>{% endif %}</label>
+            {{ field }}{% if field.name == "skills" %}<p class="mt-2 text-sm text-base-content/70">Hold Ctrl (Windows) or Command (Mac) to select or deselect multiple skills.</p>{% endif %}
+            {% if field.errors %}<div class="mt-1 text-error" id="{{ field.auto_id }}_error">{{ field.errors }}</div>{% endif %}
+          </div>
+        {% endfor %}
+        <div class="flex flex-wrap gap-3 pt-2">
+          <button class="btn btn-primary" type="submit">Save opening</button>
+          {% if opening %}
+            <a class="btn btn-ghost" href="{% url 'recruiting:opening_detail' opening.pk %}">Cancel</a>
+          {% else %}
+            <a class="btn btn-ghost" href="{% url 'recruiting:opening_list' %}">Cancel</a>
+          {% endif %}
+        </div>
+      </form>
+    </div>
+  </section>
+{% endblock %}

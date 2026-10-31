@@ -37,3 +37,4 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Django checks: `uv run python manage.py check` and `uv run python manage.py makemigrations --check --dry-run`.
 - List filters use GET forms; preserve query parameters in pagination links with Django's `{% querystring %}` tag.
 - Archive/restore actions use explicit target states and `save(update_fields=["is_archived"])` so repeated submissions are safe.
+- Opening forms use `ModelForm.save()` to persist skills; if using `commit=False`, call `save_m2m()` after saving the instance.

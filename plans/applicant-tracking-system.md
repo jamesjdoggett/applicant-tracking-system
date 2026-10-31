@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–3 passed automated checks and received user approval after browser-verification instructions. Phases 4–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–4 passed automated checks and received user approval after browser-verification instructions. Phases 5–10 have not started.
 
 ## Architectural decisions
 
@@ -87,10 +87,10 @@ Introduce `Opening`, `Skill`, their relationship, and migrations. Deliver a basi
 
 ### Acceptance criteria
 
-- [ ] Staff can create, view, and edit openings, including status and multiple skills; separate openings may share a title.
-- [ ] Administrators can manage the shared skills list, duplicate skill names are rejected, and openings can have no skills.
-- [ ] Automated tests cover required fields, status choices, M2M persistence and editing, duplicate titles, skill uniqueness, and access control.
-- [ ] Manual: create skills in admin, create an opening with several skills, then edit its status and skill selection.
+- [x] Staff can create, view, and edit openings, including status and multiple skills; separate openings may share a title.
+- [x] Administrators can manage the shared skills list, duplicate skill names are rejected, and openings can have no skills.
+- [x] Automated tests cover required fields, status choices, M2M persistence and editing, duplicate titles, skill uniqueness, and access control.
+- [x] Manual: create skills in admin, create an opening with several skills, then edit its status and skill selection. User approved Phase 4 after receiving the browser-verification steps.
 
 ---
 
