@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–8 passed automated checks and received user approval after browser-verification instructions. Phases 9–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–9 passed automated checks and received user approval after browser-verification instructions. Phase 10 has not started.
 
 ## Architectural decisions
 
@@ -175,10 +175,10 @@ Add application-deletion links from the pipeline and related application lists. 
 
 ### Acceptance criteria
 
-- [ ] Viewing or cancelling confirmation changes nothing; confirmed POST removes only the selected application and preserves both parent records.
-- [ ] Every stage can be deleted. Recreating a deleted pairing succeeds for an active candidate/open opening and remains blocked otherwise.
-- [ ] Automated tests cover confirmation, cancellation, deletion across stages, parent preservation, replacement at Applied, POST/CSRF restrictions, and staff access.
-- [ ] Manual: cancel a deletion, confirm it, and recreate the eligible pairing with its initial stage.
+- [x] Viewing or cancelling confirmation changes nothing; confirmed POST removes only the selected application and preserves both parent records.
+- [x] Every stage can be deleted. Recreating a deleted pairing succeeds for an active candidate/open opening and remains blocked otherwise.
+- [x] Automated tests cover confirmation, cancellation, deletion across stages, parent preservation, replacement at Applied, POST/CSRF restrictions, and staff access.
+- [x] Manual: cancel a deletion, confirm it, and recreate the eligible pairing with its initial stage. User approved Phase 9 after receiving browser-verification steps.
 
 ---
 

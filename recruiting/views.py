@@ -15,6 +15,22 @@ from .models import Application, Candidate, Opening
 
 
 @staff_required
+@require_http_methods(["GET", "POST"])
+def application_delete(request, pk):
+    application = get_object_or_404(
+        Application.objects.select_related("candidate", "opening"), pk=pk
+    )
+    if request.method == "POST":
+        application.delete()
+        return redirect("recruiting:application_list")
+    return render(
+        request,
+        "recruiting/application_confirm_delete.html",
+        {"application": application},
+    )
+
+
+@staff_required
 @require_POST
 def application_stage(request, pk):
     application = get_object_or_404(Application, pk=pk)

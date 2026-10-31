@@ -77,6 +77,133 @@ def staff(django_user_model):
     return django_user_model.objects.create_user(username="recruiter", is_staff=True)
 
 
+def test_confirmed_deletion_removes_only_selected_application(
+    client, staff, candidate, opening
+):
+    client.force_login(staff)
+    application = Application.objects.create(candidate=candidate, opening=opening)
+    other_opening = Opening.objects.create(title="Designer", description="Design tools")
+    other_application = Application.objects.create(
+        candidate=candidate, opening=other_opening, stage=Application.Stage.INTERVIEW
+    )
+    response = client.post(
+        reverse("recruiting:application_delete", args=[application.pk])
+    )
+    assert response.status_code == 302
+    assert not Application.objects.filter(pk=application.pk).exists()
+    assert Application.objects.get(pk=other_application.pk).stage == "interview"
+    assert Candidate.objects.filter(pk=candidate.pk).exists()
+    assert Opening.objects.filter(pk=opening.pk).exists()
+    assert Opening.objects.filter(pk=other_opening.pk).exists()
+
+
+def test_deletion_confirmation_cancel_and_management_links(
+    client, staff, candidate, opening
+):
+    client.force_login(staff)
+    application = Application.objects.create(candidate=candidate, opening=opening)
+    url = reverse("recruiting:application_delete", args=[application.pk])
+    pipeline_url = reverse("recruiting:application_list")
+    for page in [
+        pipeline_url,
+        reverse("recruiting:candidate_detail", args=[candidate.pk]),
+        reverse("recruiting:opening_detail", args=[opening.pk]),
+    ]:
+        assert f'href="{url}"'.encode() in client.get(page).content
+    response = client.get(url)
+    assert response.status_code == 200
+    for label in [candidate.name, candidate.email, opening.title, f"#{opening.pk}"]:
+        assert label.encode() in response.content
+    assert f'action="{url}"'.encode() in response.content
+    assert b'name="csrfmiddlewaretoken"' in response.content
+    assert f'href="{pipeline_url}">Cancel</a>'.encode() in response.content
+    assert client.get(pipeline_url).status_code == 200
+    assert Application.objects.get(pk=application.pk).stage == "applied"
+
+
+@pytest.mark.parametrize("stage", Application.Stage.values)
+@pytest.mark.parametrize(
+    "archived,status",
+    [(False, "open"), (True, "open"), (False, "closed"), (True, "closed")],
+)
+def test_deletion_at_every_stage_and_replacement_eligibility(
+    client, staff, candidate, opening, stage, archived, status
+):
+    client.force_login(staff)
+    candidate.is_archived = archived
+    candidate.save(update_fields=["is_archived"])
+    opening.status = status
+    opening.save(update_fields=["status"])
+    application = Application.objects.create(
+        candidate=candidate, opening=opening, stage=stage
+    )
+    original_pk = application.pk
+    original_created_at = application.created_at
+    url = reverse("recruiting:application_delete", args=[original_pk])
+    assert client.get(url).status_code == 200
+    response = client.post(url)
+    assert response.status_code == 302
+    assert response.url == reverse("recruiting:application_list")
+    assert not Application.objects.exists()
+    candidate.refresh_from_db()
+    opening.refresh_from_db()
+    assert candidate.is_archived == archived
+    assert opening.status == status
+    response = client.post(
+        reverse("recruiting:application_create"),
+        {"candidate": candidate.pk, "opening": opening.pk, "stage": stage},
+    )
+    if archived or status == "closed":
+        assert response.status_code == 200
+        assert response.context["form"].errors
+        assert not Application.objects.exists()
+    else:
+        assert response.status_code == 302
+        replacement = Application.objects.get()
+        assert replacement.pk != original_pk
+        assert replacement.stage == Application.Stage.APPLIED
+        assert replacement.created_at >= original_created_at
+        assert (replacement.candidate_id, replacement.opening_id) == (
+            candidate.pk,
+            opening.pk,
+        )
+
+
+@pytest.mark.parametrize("identity,expected", [("anonymous", 302), ("nonstaff", 403)])
+@pytest.mark.parametrize("method", ["get", "post"])
+@pytest.mark.parametrize("htmx", [False, True])
+def test_deletion_requires_staff(
+    client, django_user_model, candidate, opening, identity, expected, method, htmx
+):
+    application = Application.objects.create(candidate=candidate, opening=opening)
+    if identity == "nonstaff":
+        client.force_login(django_user_model.objects.create_user(username="nonstaff"))
+    response = getattr(client, method)(
+        reverse("recruiting:application_delete", args=[application.pk]),
+        HTTP_HX_REQUEST="true" if htmx else "false",
+    )
+    assert response.status_code == expected
+    assert Application.objects.filter(pk=application.pk).exists()
+
+
+def test_deletion_csrf_methods_and_missing_records(staff, candidate, opening):
+    client = Client(enforce_csrf_checks=True)
+    client.force_login(staff)
+    application = Application.objects.create(candidate=candidate, opening=opening)
+    url = reverse("recruiting:application_delete", args=[application.pk])
+    assert client.post(url).status_code == 403
+    assert client.get(url).status_code == 200
+    token = client.cookies["csrftoken"].value
+    for method in ["put", "patch", "delete", "options"]:
+        assert getattr(client, method)(url, HTTP_X_CSRFTOKEN=token).status_code == 405
+    assert client.head(url).status_code == 405
+    assert Application.objects.filter(pk=application.pk).exists()
+    assert client.post(url, {"csrfmiddlewaretoken": token}).status_code == 302
+    assert not Application.objects.filter(pk=application.pk).exists()
+    assert client.get(url).status_code == 404
+    assert client.post(url, {"csrfmiddlewaretoken": token}).status_code == 404
+
+
 @pytest.mark.parametrize("context", ["candidate", "opening"])
 def test_creation_from_both_contexts_ignores_stage_and_date_overrides(
     client, staff, candidate, opening, context

@@ -1,3 +1,21 @@
+## 2026-10-31 — Phase 9 confirmed application deletion
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 9 only.`
+3. Supplied the implement skill, including TDD approval checkpoints, full feedback checks, browser verification with confirmation, and final logging, commit, and push.
+4. Answered `yes` to selecting confirmed deletion that removes only the selected application while preserving parents and other applications for TDD.
+5. Answered `yes` to the RED checkpoint after the selected application still existed following POST.
+6. Answered `approved` to the GREEN checkpoint after all 42 application tests passed.
+7. Approved Phase 9 after receiving browser-verification instructions. Requested a concise AGENTS.md review with no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 9 logging; review and staging of all Phase 9 changes; the exact commit message `Phase 9 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 10.
+
+### Summary
+
+- **Outcome:** Implemented Phase 9 only: deletion links in the pipeline and both related application lists, a confirmation page identifying candidate/email, opening/ID, and stage, and staff-only CSRF-protected POST deletion. GET and cancellation preserve records; deletion preserves parents and other applications. Tests cover all eight stages with active/archived candidates and open/closed openings, eligible replacement at Applied with a new identity/date, blocked ineligible replacement, access control including HTMX requests, unsupported methods, missing records, and CSRF enforcement. All 363 tests passed; Ruff lint/format, Django system and migration consistency checks, local migration application, and the production CSS build passed. The local database required no migrations. User approved Phase 9 after browser-verification instructions. Added one durable convention to AGENTS.md and marked Phase 9 approved in the plan. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No scope changes. Paused at every required TDD and manual-verification checkpoint. No Phase 10 work started.
+- **Sideways:** An exploratory read referenced a nonexistent recruiting/conftest.py; existing fixtures were in test_applications.py. Sandbox permissions blocked uv cache access and the Tailwind binary; approved escalation allowed both. The RED test failed on its intended assertion before implementation. Pytest initially warned about optional cache writes; subsequent runs disabled the cache provider. Removed an unnecessary assertion during review, reran its test and Ruff checks, and confirmed they passed.
+
 # PROMPTS.md — AI Usage Log
 
 ## 2026-10-31 — Phase 8 inline stage changes with HTMX

@@ -6,7 +6,7 @@
   <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
     <table class="table">
       <caption class="sr-only">Application pipeline</caption>
-      <thead><tr><th scope="col">Candidate</th><th scope="col">Email</th><th scope="col">Opening</th><th scope="col">Stage</th><th scope="col">Created</th></tr></thead>
+      <thead><tr><th scope="col">Candidate</th><th scope="col">Email</th><th scope="col">Opening</th><th scope="col">Stage</th><th scope="col">Created</th><th scope="col">Actions</th></tr></thead>
       <tbody>
         {% for application in applications %}
           <tr>
@@ -27,9 +27,10 @@
               </form>
             </td>
             <td><time datetime="{{ application.created_at|date:'c' }}">{{ application.created_at|date:"M j, Y" }}</time></td>
+            <td><a class="link link-error" href="{% url 'recruiting:application_delete' application.pk %}">Delete application</a></td>
           </tr>
         {% empty %}
-          <tr><td colspan="5" class="py-8 text-center">
+          <tr><td colspan="6" class="py-8 text-center">
             {% if query or opening_filter or stage %}No applications match these filters. Change your filters or reset them above.
             {% else %}No applications yet. Create an application to get started.{% endif %}
           </td></tr>

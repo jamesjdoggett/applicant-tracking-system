@@ -44,3 +44,4 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Opening labels in the pipeline include record IDs to distinguish identical titles.
 - Stage updates validate with `ApplicationStageForm` and save only `stage` using `update_fields`; pairing fields are never accepted.
 - Pipeline pages and stage responses share `_pipeline_context()` and `recruiting/partials/pipeline_results.html`; HTMX posts retain GET filters and replace `#pipeline-results`, including feedback and the result count.
+- Application deletion uses one staff-protected GET/POST view: GET renders `application_confirm_delete.html`; only POST deletes the selected `Application` and redirects to the pipeline.

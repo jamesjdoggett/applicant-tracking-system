@@ -6,6 +6,11 @@ app_name = "recruiting"
 
 urlpatterns = [
     path(
+        "applications/<int:pk>/delete/",
+        views.application_delete,
+        name="application_delete",
+    ),
+    path(
         "applications/<int:pk>/stage/",
         views.application_stage,
         name="application_stage",

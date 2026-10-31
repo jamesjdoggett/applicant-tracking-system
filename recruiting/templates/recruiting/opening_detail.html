@@ -22,11 +22,11 @@
       <div class="overflow-x-auto">
         <table class="table">
           <caption class="sr-only">Opening applications</caption>
-          <thead><tr><th scope="col">Candidate</th><th scope="col">Stage</th><th scope="col">Created</th></tr></thead>
+          <thead><tr><th scope="col">Candidate</th><th scope="col">Stage</th><th scope="col">Created</th><th scope="col">Actions</th></tr></thead>
           <tbody>
             {% for application in applications %}
-              <tr><td><a class="link link-primary" href="{% url 'recruiting:candidate_detail' application.candidate_id %}">{{ application.candidate.name }}</a><div>{{ application.candidate.email }}</div></td><td>{{ application.get_stage_display }}</td><td>{{ application.created_at|date:"M j, Y" }}</td></tr>
-            {% empty %}<tr><td colspan="3">No applications yet.</td></tr>{% endfor %}
+              <tr><td><a class="link link-primary" href="{% url 'recruiting:candidate_detail' application.candidate_id %}">{{ application.candidate.name }}</a><div>{{ application.candidate.email }}</div></td><td>{{ application.get_stage_display }}</td><td>{{ application.created_at|date:"M j, Y" }}</td><td><a class="link link-error" href="{% url 'recruiting:application_delete' application.pk %}">Delete application</a></td></tr>
+            {% empty %}<tr><td colspan="4">No applications yet.</td></tr>{% endfor %}
           </tbody>
         </table>
       </div>

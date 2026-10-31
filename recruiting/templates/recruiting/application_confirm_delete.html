@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Delete application | Applicant Tracking System{% endblock %}
+{% block content %}
+  <section class="card border border-base-300 bg-base-100 shadow-sm">
+    <div class="card-body p-6 sm:p-10">
+      <h1 class="text-3xl font-semibold">Delete application?</h1>
+      <p>This permanently deletes application #{{ application.pk }}. The candidate and opening will be kept.</p>
+      <dl class="my-4 space-y-4">
+        <div><dt class="font-semibold">Candidate</dt><dd>{{ application.candidate.name }} ({{ application.candidate.email }})</dd></div>
+        <div><dt class="font-semibold">Opening</dt><dd>{{ application.opening.title }} (#{{ application.opening_id }})</dd></div>
+        <div><dt class="font-semibold">Stage</dt><dd>{{ application.get_stage_display }}</dd></div>
+      </dl>
+      <p>A replacement application starts at Applied and requires an active candidate and an open opening.</p>
+      <form method="post" action="{% url 'recruiting:application_delete' application.pk %}" class="mt-4 flex flex-wrap gap-3">
+        {% csrf_token %}
+        <button class="btn btn-error" type="submit">Delete application</button>
+        <a class="btn btn-outline" href="{% url 'recruiting:application_list' %}">Cancel</a>
+      </form>
+    </div>
+  </section>
+{% endblock %}
