@@ -35,6 +35,6 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Candidate staff forms and `CandidateAdmin` share `recruiting.forms.CandidateForm`; keep validation shared.
 - `Candidate.save()` normalizes email; bulk writes bypass it and are not a supported candidate write path.
 - Django checks: `uv run python manage.py check` and `uv run python manage.py makemigrations --check --dry-run`.
-- List filters use GET forms; preserve query parameters in pagination links with Django's `{% querystring %}` tag.
+- List filters use GET forms with `q` and `status`; trim search input, validate status values, and preserve normalized selections in pagination links with Django's `{% querystring %}` tag.
 - Archive/restore actions use explicit target states and `save(update_fields=["is_archived"])` so repeated submissions are safe.
 - Opening forms use `ModelForm.save()` to persist skills; if using `commit=False`, call `save_m2m()` after saving the instance.

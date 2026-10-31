@@ -15,8 +15,21 @@ from .models import Candidate, Opening
 @staff_required
 @require_safe
 def opening_list(request):
-    page = Paginator(Opening.objects.all(), 20).get_page(request.GET.get("page"))
-    return render(request, "recruiting/opening_list.html", {"page_obj": page})
+    query = request.GET.get("q", "").strip()
+    status = request.GET.get("status", "all")
+    if status not in {"all", *Opening.Status.values}:
+        status = "all"
+    openings = Opening.objects.all()
+    if query:
+        openings = openings.filter(title__icontains=query)
+    if status != "all":
+        openings = openings.filter(status=status)
+    page = Paginator(openings, 20).get_page(request.GET.get("page"))
+    return render(
+        request,
+        "recruiting/opening_list.html",
+        {"page_obj": page, "query": query, "status": status},
+    )
 
 
 @staff_required

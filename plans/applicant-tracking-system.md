@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–4 passed automated checks and received user approval after browser-verification instructions. Phases 5–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–5 passed automated checks and received user approval after browser-verification instructions. Phases 6–10 have not started.
 
 ## Architectural decisions
 
@@ -104,10 +104,10 @@ Extend the opening list with title search and Open/Closed filtering. Preserve qu
 
 ### Acceptance criteria
 
-- [ ] Search and status filters work separately and together, including openings with identical titles.
-- [ ] Pagination retains search and status selections, and empty results have a usable route back to broader results.
-- [ ] Automated tests cover combined filters, pagination, empty results, and staff access.
-- [ ] Manual: create enough openings to paginate, search by title, switch statuses, and verify navigation retains the selection.
+- [x] Search and status filters work separately and together, including openings with identical titles.
+- [x] Pagination retains search and status selections, and empty results have a usable route back to broader results.
+- [x] Automated tests cover combined filters, pagination, empty results, and staff access.
+- [x] Manual: create enough openings to paginate, search by title, switch statuses, and verify navigation retains the selection. User approved Phase 5 after receiving the browser-verification steps.
 
 ---
 

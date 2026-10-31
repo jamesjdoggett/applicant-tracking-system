@@ -4,10 +4,26 @@
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
       <h1 class="text-3xl font-semibold">Openings</h1>
-      <p class="mt-2 text-base-content/70">{{ page_obj.paginator.count }} openings</p>
+      <p class="mt-2 text-base-content/70">{{ page_obj.paginator.count }} results</p>
     </div>
     <a class="btn btn-primary" href="{% url 'recruiting:opening_create' %}">New opening</a>
   </div>
+  <form method="get" class="mb-6 flex flex-wrap items-end gap-4">
+    <div>
+      <label class="mb-2 block font-semibold" for="opening-search">Title</label>
+      <input class="input input-bordered" id="opening-search" type="search" name="q" value="{{ query }}">
+    </div>
+    <div>
+      <label class="mb-2 block font-semibold" for="opening-status">Status</label>
+      <select class="select select-bordered" id="opening-status" name="status">
+        <option value="all" {% if status == 'all' %}selected{% endif %}>All statuses</option>
+        <option value="open" {% if status == 'open' %}selected{% endif %}>Open</option>
+        <option value="closed" {% if status == 'closed' %}selected{% endif %}>Closed</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Filter openings</button>
+    <a class="btn btn-ghost" href="{% url 'recruiting:opening_list' %}">Reset filters</a>
+  </form>
   <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
     <table class="table">
       <caption class="sr-only">Openings</caption>
@@ -19,16 +35,19 @@
             <td>{{ opening.get_status_display }}</td>
           </tr>
         {% empty %}
-          <tr><td colspan="2" class="py-8 text-center">No openings yet. Create an opening to get started.</td></tr>
+          <tr><td colspan="2" class="py-8 text-center">
+            {% if query or status != 'all' %}No openings match these filters. Change your filters or reset them above.
+            {% else %}No openings yet. Create an opening to get started.{% endif %}
+          </td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% if page_obj.has_other_pages %}
     <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Opening pages">
-      <div>{% if page_obj.has_previous %}<a class="btn btn-outline btn-sm" href="{% querystring page=page_obj.previous_page_number %}">Previous</a>{% endif %}</div>
+      <div>{% if page_obj.has_previous %}<a class="btn btn-outline btn-sm" href="{% querystring page=page_obj.previous_page_number q=query status=status %}">Previous</a>{% endif %}</div>
       <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-      <div>{% if page_obj.has_next %}<a class="btn btn-outline btn-sm" href="{% querystring page=page_obj.next_page_number %}">Next</a>{% endif %}</div>
+      <div>{% if page_obj.has_next %}<a class="btn btn-outline btn-sm" href="{% querystring page=page_obj.next_page_number q=query status=status %}">Next</a>{% endif %}</div>
     </nav>
   {% endif %}
 {% endblock %}

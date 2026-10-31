@@ -1,5 +1,20 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 5 opening search and status filtering
+
+### Prompts
+
+1. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 5 only.`
+2. Supplied the implement skill: follow the PRD and plan, use the TDD skill with required approvals, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+3. Answered `yes` to selecting no TDD candidates because the existing tested candidate list already established the search/filter/pagination interface; approved following that pattern with automated opening coverage.
+4. Approved Phase 5 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, project structure, and durable conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 5 logging here; review and staging of all Phase 5 changes; the exact commit message `Phase 5 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 6.
+
+### Summary
+
+- **Outcome:** Implemented Phase 5 only: trimmed case-insensitive title search; All/Open/Closed filtering with both statuses visible by default; combined filters including duplicate titles; GET controls and reset link; query-preserving pagination; and useful empty-result guidance. All 125 tests passed, including combined filters, title-only search, pagination state with special characters, empty results/reset, invalid status fallback, and ordinary/HTMX staff access. Ruff lint/format, Django system checks, migration consistency, and the CSS build passed. The local database needed no new migrations. User approved Phase 5 after browser-verification instructions. Refined the existing AGENTS.md filter convention without adding lines and marked Phase 5 approved in the plan. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No changes to Phase 5 scope. No TDD cycles were needed under the skill's existing-tested-pattern rule; user approved that selection before implementation. Paused for manual-verification approval. No Phase 6 work was started.
+- **Sideways:** The new combined-filter test initially expected Developer before Designer; corrected its expected alphabetical order to match existing model ordering, then reran the full suite successfully. Pytest emitted optional cache-write warnings on the initial run; the successful final run disabled the optional cache provider. Commands used approved escalation for uv cache access. No unresolved check failures remain.
+
 ## 2026-10-31 — Phase 4 openings and shared skills
 
 ### Prompts

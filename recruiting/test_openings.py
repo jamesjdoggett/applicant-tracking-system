@@ -2,6 +2,7 @@ import pytest
 from django.db import IntegrityError, transaction
 from django.test import Client
 from django.urls import reverse
+from django.utils.html import escape
 
 from .models import Opening, Skill
 
@@ -152,10 +153,10 @@ def test_opening_list_paginates_both_statuses_in_stable_order(client, staff):
     assert [o.title for o in first.context["page_obj"]] == [
         f"Role {i:02}" for i in range(20)
     ]
-    assert b"?page=2" in first.content
+    assert escape("?page=2&q=&status=all").encode() in first.content
     second = client.get(url, {"page": 2})
     assert [o.title for o in second.context["page_obj"]] == ["Role 20"]
-    assert b"?page=1" in second.content
+    assert escape("?page=1&q=&status=all").encode() in second.content
     assert client.get(url, {"page": "invalid"}).context["page_obj"].number == 1
 
 
@@ -213,3 +214,76 @@ def test_opening_csrf_and_allowed_methods(staff, opening):
 def test_missing_opening_returns_404(client, staff, route):
     client.force_login(staff)
     assert client.get(reverse(f"recruiting:{route}", args=[999])).status_code == 404
+
+
+def test_opening_title_search_and_status_filters_combine(client, staff):
+    client.force_login(staff)
+    developer = Opening.objects.create(title="Developer", description="Tools")
+    duplicate = Opening.objects.create(title="Developer", description="Other team")
+    closed = Opening.objects.create(
+        title="Developer", description="Previous role", status="closed"
+    )
+    unrelated = Opening.objects.create(title="Designer", description="Developer tools")
+    url = reverse("recruiting:opening_list")
+    cases = [
+        ({}, [unrelated, developer, duplicate, closed]),
+        ({"q": "  vELop  "}, [developer, duplicate, closed]),
+        ({"status": "open"}, [unrelated, developer, duplicate]),
+        ({"status": "closed"}, [closed]),
+        ({"q": "  DEVELOPER ", "status": "open"}, [developer, duplicate]),
+        ({"q": "developer", "status": "closed"}, [closed]),
+        ({"q": "designer", "status": "closed"}, []),
+        ({"q": "   ", "status": "invalid"}, [unrelated, developer, duplicate, closed]),
+    ]
+    for params, expected in cases:
+        response = client.get(url, params)
+        assert response.status_code == 200
+        assert list(response.context["page_obj"]) == expected
+
+
+def test_filtered_opening_pagination_retains_query_and_status(client, staff):
+    client.force_login(staff)
+    for index in range(21):
+        Opening.objects.create(
+            title=f"Research & Design {index:02}", description="Tools", status="closed"
+        )
+    Opening.objects.create(title="Research & Design open", description="Tools")
+    Opening.objects.create(title="Unrelated", description="Tools", status="closed")
+    url = reverse("recruiting:opening_list")
+    params = {"q": "Research & Design", "status": "closed"}
+    first = client.get(url, params)
+    assert first.context["page_obj"].paginator.count == 21
+    assert len(first.context["page_obj"]) == 20
+    assert b'value="Research &amp; Design"' in first.content
+    assert b'value="closed" selected' in first.content
+    link = "?q=Research+%26+Design&status=closed&page=2"
+    assert escape(link).encode() in first.content
+    second = client.get(url, {**params, "page": 2})
+    assert [o.title for o in second.context["page_obj"]] == ["Research & Design 20"]
+    assert escape(link.replace("page=2", "page=1")).encode() in second.content
+
+
+def test_opening_empty_results_and_reset(client, staff, opening):
+    client.force_login(staff)
+    url = reverse("recruiting:opening_list")
+    for params in [{"q": "missing"}, {"status": "closed"}]:
+        response = client.get(url, params)
+        assert not response.context["page_obj"]
+        assert b"No openings match these filters" in response.content
+        assert f'href="{url}">Reset filters'.encode() in response.content
+    assert list(client.get(url).context["page_obj"]) == [opening]
+
+
+@pytest.mark.parametrize("htmx", [False, True])
+@pytest.mark.parametrize("identity,status", [("anonymous", 302), ("nonstaff", 403)])
+def test_filtered_opening_list_requires_staff(
+    client, django_user_model, identity, status, htmx
+):
+    if identity == "nonstaff":
+        client.force_login(django_user_model.objects.create_user(username="nonstaff"))
+    response = client.get(
+        reverse("recruiting:opening_list"),
+        {"q": "Developer", "status": "closed", "page": 2},
+        HTTP_HX_REQUEST="true" if htmx else "false",
+    )
+    assert response.status_code == status
