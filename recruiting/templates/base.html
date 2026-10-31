@@ -1,0 +1,33 @@
+{% load static tailwind_cli %}
+<!doctype html>
+<html lang="en" data-theme="light">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="htmx-config" content='{"historyCacheSize": 0}'>
+    <title>{% block title %}Applicant Tracking System{% endblock %}</title>
+    {% tailwind_css %}
+    <script src="{% static 'vendor/htmx/htmx-2.0.10.min.js' %}" defer></script>
+  </head>
+  <body class="min-h-screen bg-base-200 text-base-content" hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+    <a class="sr-only focus:not-sr-only btn btn-primary" href="#main">Skip to content</a>
+    <header class="border-b border-base-300 bg-base-100">
+      <nav class="navbar mx-auto max-w-5xl flex-wrap gap-3 px-4 sm:px-6" aria-label="Main navigation">
+        <a class="flex-1 text-lg font-semibold tracking-tight" href="{% url 'recruiting:home' %}">Applicant Tracking System</a>
+        {% if user.is_authenticated %}
+          <span class="text-sm text-base-content/70">{{ user.get_username }}</span>
+          {% if user.is_superuser %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'admin:index' %}">Administration</a>
+          {% endif %}
+          <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button class="btn btn-outline btn-sm" type="submit">Sign out</button>
+          </form>
+        {% endif %}
+      </nav>
+    </header>
+    <main id="main" class="mx-auto max-w-5xl px-4 py-12 sm:px-6">
+      {% block content %}{% endblock %}
+    </main>
+  </body>
+</html>

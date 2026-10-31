@@ -1,5 +1,22 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 1 staff authentication and project setup
+
+### Prompts
+
+1. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 1 only.`
+2. Supplied the implement skill: read the approved documents, follow the TDD skill and approval checkpoints, run feedback loops, wait for manual-verification confirmation, then update this log, commit, and push.
+3. Answered `approved` to selecting staff-only landing-page access for TDD, covering anonymous, non-staff, and staff users for ordinary and HTMX requests.
+4. Answered `yes` to the failing test review: anonymous requests should redirect to sign-in, non-staff requests should receive 403, and staff requests should succeed.
+5. Answered `yes` to the green-test review of the reusable staff-access decorator before the remaining Phase 1 work continued.
+6. Approved Phase 1 after receiving browser-verification instructions. Requested that AGENTS.md gain no more than five lines of verified commands, project structure, and durable conventions, targeting 60–80 lines maximum after all ten phases; that this log accurately record Phase 1; and that all Phase 1 changes be reviewed, staged, committed with the exact message `Phase 1 Complete`, and pushed to GitHub. Explicitly prohibited starting Phase 2.
+
+### Summary
+
+- **Outcome:** Implemented Phase 1 only: a uv-managed Python/Django/SQLite project; Tailwind CSS and DaisyUI through django-tailwind-cli; locally served, pinned HTMX with its license; pytest/pytest-django and Ruff configuration; styled staff sign-in and a shared navigation/landing template; POST sign-out; a reusable staff-access decorator; and Django admin account administration. All 16 tests passed, as did Ruff lint/format checks, Django system and migration checks, and the CSS build. Applied built-in Django migrations locally and confirmed HTTP 200 responses for the login page, CSS, and HTMX assets. Provided browser-verification steps and received Phase 1 approval. Added five verified lines to AGENTS.md and updated README and the plan to reflect approval. Finalization uses the requested commit message; its commit hash and push result are reported to the user after Git verification.
+- **Deviations:** No changes to the approved Phase 1 scope. Paused at each required TDD approval checkpoint and after browser-verification instructions. The user approved each checkpoint and requested the concise AGENTS.md update before committing. No Phase 2 functionality was implemented.
+- **Sideways:** The system Python launcher was inaccessible, so uv used the installed Python 3.14 interpreter. Sandbox restrictions required approved access to uv's cache and dependency/asset downloads. The initial six-case access test correctly failed four assertions before the staff decorator made all six pass. The admin integration test initially omitted the required date-joined fields from its simulated edit submission; corrected that request, preserving the intended workflow. Removed unused generated imports and formatted the scaffold for Ruff. Tailwind status output initially failed under Windows console encoding; verified Python's `-X utf8` option and documented it. A sandbox-blocked CLI download succeeded with approved access, and the final stylesheet built successfully.
+
 ## 2026-10-31 — ATS requirements interview, prototypes, and PRD
 
 ### Prompts

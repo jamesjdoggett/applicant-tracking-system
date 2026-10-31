@@ -1,0 +1,6 @@
+@import "tailwindcss" source(none);
+@source "../recruiting/templates";
+@source "../recruiting/forms.py";
+@plugin "daisyui" {
+  themes: light --default;
+}

@@ -208,6 +208,10 @@ tempCodeRunnerFile.py
 # Ruff stuff:
 .ruff_cache/
 
+# Generated Tailwind CLI and stylesheet
+.django_tailwind_cli/
+static/css/tailwind.css
+
 # PyPI configuration file
 .pypirc
 

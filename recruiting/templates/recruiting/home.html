@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <section class="card border border-base-300 bg-base-100 shadow-sm" aria-labelledby="welcome-title">
+    <div class="card-body gap-4 p-6 sm:p-10">
+      <p class="text-sm font-medium text-primary">Staff workspace</p>
+      <h1 id="welcome-title" class="text-3xl font-semibold tracking-tight">Welcome, {{ user.get_username }}.</h1>
+      <p class="max-w-xl text-base-content/70">You are signed in to the Applicant Tracking System.</p>
+      {% if user.is_superuser %}
+        <div class="card-actions mt-2">
+          <a class="btn btn-primary" href="{% url 'admin:auth_user_changelist' %}">Manage staff accounts</a>
+        </div>
+      {% endif %}
+    </div>
+  </section>
+{% endblock %}

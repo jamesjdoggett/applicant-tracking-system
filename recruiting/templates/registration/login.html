@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}Staff sign-in | Applicant Tracking System{% endblock %}
+
+{% block content %}
+  <section class="card mx-auto max-w-md border border-base-300 bg-base-100 shadow-sm" aria-labelledby="login-title">
+    <div class="card-body gap-6 p-6 sm:p-8">
+      <div>
+        <p class="mb-2 text-sm font-medium text-primary">Staff access</p>
+        <h1 id="login-title" class="text-2xl font-semibold">Sign in</h1>
+        <p class="mt-2 text-sm text-base-content/70">Use the account provided by your administrator.</p>
+      </div>
+      <form method="post" action="{% url 'login' %}" class="space-y-5">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+          <div class="alert alert-error text-sm" role="alert">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% for field in form %}
+          <div class="space-y-2">
+            <label class="block text-sm font-medium" for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}
+              <div class="text-sm text-error" role="alert">{{ field.errors }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+        <input type="hidden" name="next" value="{{ next }}">
+        <button type="submit" class="btn btn-primary w-full">Sign in</button>
+      </form>
+    </div>
+  </section>
+{% endblock %}

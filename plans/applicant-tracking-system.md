@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Implementation has not started and requires a separate request.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phase 1 passed automated checks and received user approval after browser-verification instructions. Phases 2–10 have not started.
 
 ## Architectural decisions
 
@@ -36,10 +36,10 @@ Bootstrap the required Django/uv stack, SQLite configuration, Tailwind/DaisyUI b
 
 ### Acceptance criteria
 
-- [ ] An administrator can create a staff account; that account can sign in, reach the protected page, and sign out using POST.
-- [ ] Anonymous users must sign in, and authenticated non-staff users cannot access recruiting pages. Do not introduce self-registration.
-- [ ] Automated tests cover these access paths and sign-in/sign-out behavior using pytest and pytest-django; the required CSS build and Ruff checks work.
-- [ ] Manual: create an account through admin, sign in and out, and inspect the styled page and login errors.
+- [x] An administrator can create a staff account; that account can sign in, reach the protected page, and sign out using POST.
+- [x] Anonymous users must sign in, and authenticated non-staff users cannot access recruiting pages. Do not introduce self-registration.
+- [x] Automated tests cover these access paths and sign-in/sign-out behavior using pytest and pytest-django; the required CSS build and Ruff checks work.
+- [x] Manual: create an account through admin, sign in and out, and inspect the styled page and login errors. User approved Phase 1 after receiving the browser-verification steps.
 
 ---
 
