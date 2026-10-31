@@ -1,5 +1,25 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 3 candidate search, archiving, and restoration
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 3 only.`
+3. Supplied the implement skill: follow the PRD and plan, use the TDD skill with required approvals, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+4. Answered `yes` to selecting combined candidate search/status filtering and archive/restore behavior for TDD.
+5. Answered `yes` to the search/filter RED checkpoint: searching for ALEX also returned an unrelated active candidate; approved the test covering trimmed case-insensitive name/email search combined with archive status and unmatched queries.
+6. Answered `approved` to the search/filter GREEN review after all 43 candidate tests passed.
+7. Answered `yes` to the archive/restore RED checkpoint: the archive POST left is_archived false; approved the test covering status changes, list visibility, detail access, restoration, and record preservation.
+8. Answered `approved` to the archive/restore GREEN review after all 44 candidate tests passed.
+9. Approved Phase 3 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, project structure, and durable conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 3 logging here; review and staging of all Phase 3 changes; the exact commit message `Phase 3 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 4.
+
+### Summary
+
+- **Outcome:** Implemented Phase 3 only: case-insensitive name/email search with trimmed input, Active/Archived filtering, GET filter controls and reset/empty results, query-preserving pagination using Django's querystring tag, and staff-only CSRF-protected POST archive/restore actions with detail-page controls. Archived records remain viewable and editable with existing duplicate-email validation. All 81 tests passed, covering combined filters, pagination state, archived editing, record preservation, repeated submissions, ordinary/HTMX access control, HTTP methods, CSRF, and missing records. Ruff lint/format, Django system checks, migration consistency, and the CSS build passed; the local database needed no new migrations. User approved Phase 3 after receiving browser-verification steps. Added two durable conventions to AGENTS.md and marked Phase 3 approved in the plan. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No changes to Phase 3 scope. Paused for each required TDD checkpoint and manual-verification approval. Application preservation remains scheduled for Phase 6, when applications exist. No Phase 4 work was started.
+- **Sideways:** An initial test-file read used the wrong path; located the existing recruiting/test_candidates.py. Sandbox restrictions blocked uv cache access; reran checks with approved escalation. Both selected TDD tests failed on their intended assertions before implementation. Pytest emitted an optional cache-write warning while all tests passed. Ruff caught line-length/import formatting issues; formatted three files and reran both checks successfully.
+
 ## 2026-10-31 — Phase 2 candidate entry and browsing
 
 ### Prompts

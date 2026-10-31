@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ candidate.name }} | Applicant Tracking System{% endblock %}
 {% block content %}
-  <a class="link link-primary" href="{% url 'recruiting:candidate_list' %}">Back to candidates</a>
+  <a class="link link-primary" href="{% url 'recruiting:candidate_list' %}{% if candidate.is_archived %}?status=archived{% endif %}">Back to candidates</a>
   <section class="card mt-4 border border-base-300 bg-base-100 shadow-sm">
     <div class="card-body p-6 sm:p-10">
       <div class="flex flex-wrap items-center justify-between gap-4">
@@ -9,6 +9,10 @@
         <a class="btn btn-primary" href="{% url 'recruiting:candidate_edit' candidate.pk %}">Edit candidate</a>
       </div>
       {% if candidate.is_archived %}<p class="badge badge-neutral">Archived</p>{% endif %}
+      <form method="post" action="{% if candidate.is_archived %}{% url 'recruiting:candidate_restore' candidate.pk %}{% else %}{% url 'recruiting:candidate_archive' candidate.pk %}{% endif %}">
+        {% csrf_token %}
+        <button class="btn btn-outline" type="submit">{% if candidate.is_archived %}Restore candidate{% else %}Archive candidate{% endif %}</button>
+      </form>
       <dl class="mt-6 space-y-5">
         <div><dt class="font-semibold">Email</dt><dd class="break-words">{{ candidate.email }}</dd></div>
         <div><dt class="font-semibold">Phone</dt><dd>{{ candidate.phone|default:"Not provided" }}</dd></div>

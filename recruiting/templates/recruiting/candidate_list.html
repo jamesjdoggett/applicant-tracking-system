@@ -4,13 +4,28 @@
   <div class="mb-6 flex flex-wrap items-center justify-between gap-4">
     <div>
       <h1 class="text-3xl font-semibold">Candidates</h1>
-      <p class="mt-2 text-base-content/70">Active candidates · {{ page_obj.paginator.count }} total</p>
+      <p class="mt-2 text-base-content/70">{{ status|capfirst }} candidates · {{ page_obj.paginator.count }} results</p>
     </div>
     <a class="btn btn-primary" href="{% url 'recruiting:candidate_create' %}">New candidate</a>
   </div>
+  <form method="get" class="mb-6 flex flex-wrap items-end gap-4">
+    <div>
+      <label class="mb-2 block font-semibold" for="candidate-search">Name or email</label>
+      <input class="input input-bordered" id="candidate-search" type="search" name="q" value="{{ query }}">
+    </div>
+    <div>
+      <label class="mb-2 block font-semibold" for="candidate-status">Status</label>
+      <select class="select select-bordered" id="candidate-status" name="status">
+        <option value="active" {% if status == 'active' %}selected{% endif %}>Active</option>
+        <option value="archived" {% if status == 'archived' %}selected{% endif %}>Archived</option>
+      </select>
+    </div>
+    <button class="btn btn-primary" type="submit">Filter candidates</button>
+    <a class="btn btn-ghost" href="{% url 'recruiting:candidate_list' %}">Reset filters</a>
+  </form>
   <div class="overflow-x-auto rounded-box border border-base-300 bg-base-100">
     <table class="table">
-      <caption class="sr-only">Active candidates</caption>
+      <caption class="sr-only">{{ status|capfirst }} candidates</caption>
       <thead><tr><th scope="col">Name</th><th scope="col">Email</th><th scope="col">Recruitment source</th></tr></thead>
       <tbody>
         {% for candidate in page_obj %}
@@ -20,16 +35,20 @@
             <td>{{ candidate.get_recruitment_source_display }}</td>
           </tr>
         {% empty %}
-          <tr><td colspan="3" class="py-8 text-center">No active candidates yet. Create a candidate to get started.</td></tr>
+          <tr><td colspan="3" class="py-8 text-center">
+            {% if query %}No candidates match this search and status. Change your filters or reset them above.
+            {% elif status == 'archived' %}No archived candidates.
+            {% else %}No active candidates yet. Create a candidate to get started.{% endif %}
+          </td></tr>
         {% endfor %}
       </tbody>
     </table>
   </div>
   {% if page_obj.has_other_pages %}
     <nav class="mt-6 flex items-center justify-between gap-4" aria-label="Candidate pages">
-      <div>{% if page_obj.has_previous %}<a class="btn btn-outline btn-sm" href="?page={{ page_obj.previous_page_number }}">Previous</a>{% endif %}</div>
+      <div>{% if page_obj.has_previous %}<a class="btn btn-outline btn-sm" href="{% querystring page=page_obj.previous_page_number q=query status=status %}">Previous</a>{% endif %}</div>
       <span>Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-      <div>{% if page_obj.has_next %}<a class="btn btn-outline btn-sm" href="?page={{ page_obj.next_page_number }}">Next</a>{% endif %}</div>
+      <div>{% if page_obj.has_next %}<a class="btn btn-outline btn-sm" href="{% querystring page=page_obj.next_page_number q=query status=status %}">Next</a>{% endif %}</div>
     </nav>
   {% endif %}
 {% endblock %}

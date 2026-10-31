@@ -2,6 +2,7 @@ import pytest
 from django.db import IntegrityError, transaction
 from django.test import Client
 from django.urls import reverse
+from django.utils.html import escape
 
 from .forms import CandidateForm
 from .models import Candidate
@@ -248,6 +249,10 @@ def test_active_list_paginates_in_stable_name_order(client, staff):
         ("candidate_create", "post"),
         ("candidate_edit", "get"),
         ("candidate_edit", "post"),
+        ("candidate_archive", "get"),
+        ("candidate_archive", "post"),
+        ("candidate_restore", "get"),
+        ("candidate_restore", "post"),
     ],
 )
 def test_candidate_endpoints_require_staff(
@@ -255,13 +260,14 @@ def test_candidate_endpoints_require_staff(
 ):
     if identity == "nonstaff":
         client.force_login(django_user_model.objects.create_user(username="nonstaff"))
-    args = [candidate.pk] if route in {"candidate_detail", "candidate_edit"} else []
+    args = [] if route in {"candidate_list", "candidate_create"} else [candidate.pk]
     url = reverse(f"recruiting:{route}", args=args)
     response = getattr(client, method)(url, HTTP_HX_REQUEST="true" if htmx else "false")
     assert response.status_code == status
     assert Candidate.objects.count() == 1
     candidate.refresh_from_db()
     assert candidate.name == "Alex Rivera"
+    assert not candidate.is_archived
 
 
 def test_candidate_mutations_require_csrf_and_read_pages_reject_posts(staff, candidate):
@@ -292,3 +298,151 @@ def test_candidate_mutations_require_csrf_and_read_pages_reject_posts(staff, can
 def test_missing_candidate_returns_404(client, staff, route):
     client.force_login(staff)
     assert client.get(reverse(f"recruiting:{route}", args=[999])).status_code == 404
+
+
+def test_candidate_search_combines_name_or_email_with_archive_filter(client, staff):
+    client.force_login(staff)
+    active = Candidate.objects.create(
+        name="Alex Rivera", email="recruit@example.com", recruitment_source="other"
+    )
+    archived = Candidate.objects.create(
+        name="Sam Chen",
+        email="alex@example.com",
+        recruitment_source="other",
+        is_archived=True,
+    )
+    Candidate.objects.create(
+        name="Unrelated", email="other@example.com", recruitment_source="other"
+    )
+    url = reverse("recruiting:candidate_list")
+
+    response = client.get(url, {"q": "  ALEX  "})
+    assert list(response.context["page_obj"]) == [active]
+
+    response = client.get(url, {"q": "  ALEX  ", "status": "archived"})
+    assert list(response.context["page_obj"]) == [archived]
+
+    response = client.get(url, {"q": "CHEN", "status": "archived"})
+    assert list(response.context["page_obj"]) == [archived]
+
+    response = client.get(url, {"q": "missing", "status": "active"})
+    assert list(response.context["page_obj"]) == []
+
+
+def test_archive_and_restore_preserve_candidate_and_update_default_list(
+    client, staff, candidate
+):
+    client.force_login(staff)
+    list_url = reverse("recruiting:candidate_list")
+    detail_url = reverse("recruiting:candidate_detail", args=[candidate.pk])
+    assert list(client.get(list_url).context["page_obj"]) == [candidate]
+
+    response = client.post(reverse("recruiting:candidate_archive", args=[candidate.pk]))
+    assert response.status_code == 302
+    assert response.url == detail_url
+    candidate.refresh_from_db()
+    assert candidate.is_archived
+    assert list(client.get(list_url).context["page_obj"]) == []
+    assert list(client.get(list_url, {"status": "archived"}).context["page_obj"]) == [
+        candidate
+    ]
+    assert client.get(detail_url).status_code == 200
+
+    response = client.post(reverse("recruiting:candidate_restore", args=[candidate.pk]))
+    assert response.status_code == 302
+    assert response.url == detail_url
+    candidate.refresh_from_db()
+    assert not candidate.is_archived
+    assert list(client.get(list_url).context["page_obj"]) == [candidate]
+    assert Candidate.objects.count() == 1
+    assert candidate.name == "Alex Rivera"
+    assert candidate.email == "alex@example.com"
+
+
+def test_filtered_candidate_pagination_retains_query_and_status(client, staff):
+    client.force_login(staff)
+    for index in range(21):
+        Candidate.objects.create(
+            name=f"Archive & Review {index:02}",
+            email=f"{index}@example.com",
+            recruitment_source="other",
+            is_archived=True,
+        )
+    url = reverse("recruiting:candidate_list")
+    response = client.get(url, {"q": "Archive & Review", "status": "archived"})
+    assert response.context["page_obj"].paginator.count == 21
+    expected = "?q=Archive+%26+Review&status=archived&page=2"
+    assert escape(expected).encode() in response.content
+    assert b'value="Archive &amp; Review"' in response.content
+    assert b'value="archived" selected' in response.content
+    second = client.get(url, {"q": "Archive & Review", "status": "archived", "page": 2})
+    assert [c.name for c in second.context["page_obj"]] == ["Archive & Review 20"]
+    assert escape(expected.replace("page=2", "page=1")).encode() in second.content
+
+
+def test_archived_candidate_edit_preserves_status_and_email_validation(
+    client, staff, candidate
+):
+    client.force_login(staff)
+    candidate.is_archived = True
+    candidate.save()
+    Candidate.objects.create(
+        name="Other", email="other@example.com", recruitment_source="other"
+    )
+    url = reverse("recruiting:candidate_edit", args=[candidate.pk])
+    assert client.get(url).status_code == 200
+    data = {
+        "name": "Archived updated",
+        "email": " ALEX@Example.com ",
+        "recruitment_source": "other",
+    }
+    assert client.post(url, data).status_code == 302
+    candidate.refresh_from_db()
+    assert candidate.name == "Archived updated"
+    assert candidate.is_archived
+    assert candidate.email == "alex@example.com"
+    response = client.post(url, {**data, "email": " OTHER@example.com "})
+    assert "email" in response.context["form"].errors
+    candidate.refresh_from_db()
+    assert candidate.email == "alex@example.com"
+    assert candidate.is_archived
+
+
+@pytest.mark.parametrize("route", ["candidate_archive", "candidate_restore"])
+def test_candidate_archive_actions_require_post_csrf_and_existing_record(
+    staff, candidate, route
+):
+    client = Client(enforce_csrf_checks=True)
+    client.force_login(staff)
+    candidate.is_archived = route == "candidate_restore"
+    candidate.save()
+    original_status = candidate.is_archived
+    url = reverse(f"recruiting:{route}", args=[candidate.pk])
+    assert client.get(url).status_code == 405
+    assert client.post(url).status_code == 403
+    candidate.refresh_from_db()
+    assert candidate.is_archived == original_status
+    detail = client.get(reverse("recruiting:candidate_detail", args=[candidate.pk]))
+    assert url.encode() in detail.content
+    token = client.cookies["csrftoken"].value
+    assert client.put(url, HTTP_X_CSRFTOKEN=token).status_code == 405
+    assert client.post(url, {"csrfmiddlewaretoken": token}).status_code == 302
+    candidate.refresh_from_db()
+    assert candidate.is_archived != original_status
+    # Repeating the same action leaves the status unchanged.
+    assert client.post(url, {"csrfmiddlewaretoken": token}).status_code == 302
+    candidate.refresh_from_db()
+    assert candidate.is_archived != original_status
+    missing = reverse(f"recruiting:{route}", args=[999])
+    assert client.post(missing, {"csrfmiddlewaretoken": token}).status_code == 404
+
+
+def test_candidate_empty_search_and_invalid_status(client, staff, candidate):
+    client.force_login(staff)
+    url = reverse("recruiting:candidate_list")
+    response = client.get(url, {"q": "missing", "status": "archived"})
+    assert b"No candidates match" in response.content
+    assert b"Reset filters" in response.content
+    response = client.get(url, {"q": "   ", "status": "invalid"})
+    assert list(response.context["page_obj"]) == [candidate]
+    assert response.context["status"] == "active"

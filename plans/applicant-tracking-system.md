@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–2 passed automated checks and received user approval after browser-verification instructions. Phases 3–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–3 passed automated checks and received user approval after browser-verification instructions. Phases 4–10 have not started.
 
 ## Architectural decisions
 
@@ -70,10 +70,10 @@ Add name/email search, Active/Archived filtering, and POST archive/restore actio
 
 ### Acceptance criteria
 
-- [ ] Staff can search by name or email and filter Active/Archived records; pagination preserves the current query.
-- [ ] Archiving removes a candidate from the default list; restoration returns it. Staff can edit archived records without bypassing duplicate-email prevention.
-- [ ] Automated tests cover search/filter combinations, pagination state, archive/restore mutations, editing archived records, and access control. Candidate deletion is absent from the staff interface.
-- [ ] Manual: archive a candidate, find and edit it using the Archived filter, then restore it.
+- [x] Staff can search by name or email and filter Active/Archived records; pagination preserves the current query.
+- [x] Archiving removes a candidate from the default list; restoration returns it. Staff can edit archived records without bypassing duplicate-email prevention.
+- [x] Automated tests cover search/filter combinations, pagination state, archive/restore mutations, editing archived records, and access control. Candidate deletion is absent from the staff interface.
+- [x] Manual: archive a candidate, find and edit it using the Archived filter, then restore it. User approved Phase 3 after receiving the browser-verification steps.
 
 ---
 

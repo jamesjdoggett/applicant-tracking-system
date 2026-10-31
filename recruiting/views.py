@@ -1,6 +1,11 @@
 from django.core.paginator import Paginator
+from django.db.models import Q
 from django.shortcuts import get_object_or_404, redirect, render
-from django.views.decorators.http import require_http_methods, require_safe
+from django.views.decorators.http import (
+    require_http_methods,
+    require_POST,
+    require_safe,
+)
 
 from .decorators import staff_required
 from .forms import CandidateForm
@@ -15,9 +20,39 @@ def home(request):
 @staff_required
 @require_safe
 def candidate_list(request):
-    candidates = Candidate.objects.filter(is_archived=False)
+    query = request.GET.get("q", "").strip()
+    status = request.GET.get("status", "active")
+    if status not in {"active", "archived"}:
+        status = "active"
+    candidates = Candidate.objects.filter(is_archived=status == "archived")
+    if query:
+        candidates = candidates.filter(
+            Q(name__icontains=query) | Q(email__icontains=query)
+        )
     page = Paginator(candidates, 20).get_page(request.GET.get("page"))
-    return render(request, "recruiting/candidate_list.html", {"page_obj": page})
+    return render(
+        request,
+        "recruiting/candidate_list.html",
+        {"page_obj": page, "query": query, "status": status},
+    )
+
+
+@staff_required
+@require_POST
+def candidate_archive(request, pk):
+    candidate = get_object_or_404(Candidate, pk=pk)
+    candidate.is_archived = True
+    candidate.save(update_fields=["is_archived"])
+    return redirect("recruiting:candidate_detail", pk=candidate.pk)
+
+
+@staff_required
+@require_POST
+def candidate_restore(request, pk):
+    candidate = get_object_or_404(Candidate, pk=pk)
+    candidate.is_archived = False
+    candidate.save(update_fields=["is_archived"])
+    return redirect("recruiting:candidate_detail", pk=candidate.pk)
 
 
 @staff_required
