@@ -16,6 +16,7 @@
         <a class="flex-1 text-lg font-semibold tracking-tight" href="{% url 'recruiting:home' %}">Applicant Tracking System</a>
         {% if user.is_authenticated %}
           {% if user.is_staff %}
+            <a class="btn btn-ghost btn-sm" href="{% url 'recruiting:application_list' %}">Pipeline</a>
             <a class="btn btn-ghost btn-sm" href="{% url 'recruiting:candidate_list' %}">Candidates</a>
             <a class="btn btn-ghost btn-sm" href="{% url 'recruiting:opening_list' %}">Openings</a>
           {% endif %}

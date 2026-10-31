@@ -15,6 +15,40 @@ from .models import Application, Candidate, Opening
 
 
 @staff_required
+@require_safe
+def application_list(request):
+    query = request.GET.get("q", "").strip()
+    opening = request.GET.get("opening", "")
+    openings = Opening.objects.all()
+    if opening not in {str(pk) for pk in openings.values_list("pk", flat=True)}:
+        opening = ""
+    stage = request.GET.get("stage", "")
+    if stage not in Application.Stage.values:
+        stage = ""
+    applications = Application.objects.select_related("candidate", "opening")
+    if query:
+        applications = applications.filter(
+            Q(candidate__name__icontains=query) | Q(candidate__email__icontains=query)
+        )
+    if opening:
+        applications = applications.filter(opening_id=opening)
+    if stage:
+        applications = applications.filter(stage=stage)
+    return render(
+        request,
+        "recruiting/application_list.html",
+        {
+            "applications": applications,
+            "query": query,
+            "opening_filter": opening,
+            "stage": stage,
+            "openings": openings,
+            "stages": Application.Stage.choices,
+        },
+    )
+
+
+@staff_required
 @require_http_methods(["GET", "POST"])
 def application_create(request):
     initial = {}

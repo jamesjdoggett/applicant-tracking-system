@@ -2,7 +2,7 @@
 
 > Source PRD: [Completed Applicant Tracking System PRD](../prd/applicant-tracking-system.md)
 >
-> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–6 passed automated checks and received user approval after browser-verification instructions. Phases 7–10 have not started.
+> Status: Approved on 2026-10-31. The ten-phase breakdown is final. Phases 1–7 passed automated checks and received user approval after browser-verification instructions. Phases 8–10 have not started.
 
 ## Architectural decisions
 
@@ -140,10 +140,10 @@ Deliver `/applications/` as the selected table interface with candidate name/ema
 
 ### Acceptance criteria
 
-- [ ] All required columns are visible, and each search/filter combination returns the correct applications.
-- [ ] Archived candidates and closed openings retain visible applications; empty results provide useful feedback.
-- [ ] Automated tests cover candidate name/email search, both filters individually and together, row contents, retained archived/closed records, and access control.
-- [ ] Manual: find applications using search and each filter, combine all three, and open their candidate/opening details.
+- [x] All required columns are visible, and each search/filter combination returns the correct applications.
+- [x] Archived candidates and closed openings retain visible applications; empty results provide useful feedback.
+- [x] Automated tests cover candidate name/email search, both filters individually and together, row contents, retained archived/closed records, and access control.
+- [x] Manual: find applications using search and each filter, combine all three, and open their candidate/opening details. User approved Phase 7 after receiving the browser-verification steps.
 
 ---
 

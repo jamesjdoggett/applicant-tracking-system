@@ -1,5 +1,23 @@
 # PROMPTS.md — AI Usage Log
 
+## 2026-10-31 — Phase 7 searchable and filterable pipeline
+
+### Prompts
+
+1. Supplied AGENTS.md project instructions and the Windows workspace context.
+2. Invoked `$implement @prd/applicant-tracking-system.md @plans/applicant-tracking-system.md implement Phase 7 only.`
+3. Supplied the implement skill: follow the approved documents and TDD approval checkpoints, run feedback loops, provide browser-verification steps and wait for confirmation, then update this log, commit, and push.
+4. Answered `yes` to selecting the intersection of candidate search, opening, and stage filters for TDD.
+5. Answered `yes` to the RED checkpoint: the pipeline returned all four applications rather than the one matching the trimmed, case-insensitive email search and both filters.
+6. Answered `approved` to the GREEN review after the selected test and all 42 pipeline/application tests passed.
+7. Approved Phase 7 after receiving browser-verification instructions. Requested review of AGENTS.md with only important verified commands, project structure, and durable conventions; no more than five added lines per phase and a final target of 60–80 lines maximum after ten phases; accurate Phase 7 logging here; review and staging of all Phase 7 changes; the exact commit message `Phase 7 Complete`; and a GitHub push with success confirmation. Explicitly prohibited starting Phase 8.
+
+### Summary
+
+- **Outcome:** Implemented Phase 7 only: staff-only `/applications/` pipeline with candidate name/email, opening, stage, and creation date; candidate and opening detail links; combined candidate name/email search and opening/stage filters; normalized selections; useful empty-result/reset feedback; navigation and home links; and retained applications for archived candidates and closed openings. Opening labels include IDs to distinguish duplicate titles, and related records are loaded with select_related. All 175 tests passed. Ruff lint/format, Django system checks, migration consistency, and the CSS build passed; the local database had no pending migrations. User approved Phase 7 after browser-verification instructions. Added two durable lines to AGENTS.md and marked Phase 7 approved in the plan. Finalization uses the requested commit message; the commit hash and verified push result are reported after Git verification.
+- **Deviations:** No changes to approved Phase 7 scope. Paused at the TDD selection, RED/GREEN reviews, and manual-verification checkpoint. No Phase 8 work was started.
+- **Sideways:** Sandbox restrictions blocked uv cache access; reran checks with approved escalation. The selected test failed on its intended assertion before filtering made it pass. Pytest reported an optional cache-write warning; all tests passed. Ruff formatted the new test file. No unresolved check failures remain.
+
 ## 2026-10-31 — Phase 6 application creation and related records
 
 ### Prompts

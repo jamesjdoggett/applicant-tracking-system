@@ -7,6 +7,7 @@
       <h1 id="welcome-title" class="text-3xl font-semibold tracking-tight">Welcome, {{ user.get_username }}.</h1>
       <p class="max-w-xl text-base-content/70">You are signed in to the Applicant Tracking System.</p>
       <div class="card-actions">
+        <a class="btn btn-outline" href="{% url 'recruiting:application_list' %}">View pipeline</a>
         <a class="btn btn-primary" href="{% url 'recruiting:candidate_list' %}">View candidates</a>
         <a class="btn btn-outline" href="{% url 'recruiting:opening_list' %}">View openings</a>
       </div>

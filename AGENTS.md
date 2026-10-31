@@ -40,3 +40,5 @@ Internal staff-only Django application for managing candidates, openings, and ap
 - Opening forms use `ModelForm.save()` to persist skills; if using `commit=False`, call `save_m2m()` after saving the instance.
 - Application creation uses `ApplicationForm` with fresh eligible-record querysets on each request; query parameters preselect records, while validated POST fields determine the new pairing.
 - Related application lists use `select_related()` for the opposite parent to avoid per-row queries.
+- Pipeline queries use `select_related("candidate", "opening")`; GET filters are `q`, `opening` (record ID), and `stage`, with invalid filter values normalized to all records.
+- Opening labels in the pipeline include record IDs to distinguish identical titles.
