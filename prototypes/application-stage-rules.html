@@ -1,0 +1,71 @@
+﻿<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>ATS â€” Stage rules prototype</title>
+<style>
+body{font:16px/1.5 system-ui,sans-serif;background:#f5f7fa;color:#182333;margin:0}main{max-width:1000px;margin:auto;padding:28px}h1{margin-bottom:6px}h2{font-size:20px}section{background:white;border:1px solid #d4dce7;border-radius:10px;padding:20px;margin:18px 0}button,select{font:inherit;padding:9px 12px;border:1px solid #93a4ba;border-radius:6px;background:white;color:inherit;margin:4px}button{cursor:pointer}button:hover{background:#e8efff}button:disabled{opacity:.5;cursor:default}button[aria-selected=true]{background:#224fa2;color:white}dl{display:grid;grid-template-columns:180px 1fr;gap:8px}dt{color:#536174}dd{margin:0;font-weight:600}.notice{padding:12px;background:#eef3ff;border-left:4px solid #224fa2}small{color:#536174}#history{max-height:180px;overflow:auto}label{display:block} .steps button{display:block;text-align:left} @media(max-width:600px){main{padding:12px}dl{grid-template-columns:1fr}}
+</style>
+<main>
+<h1>Application stage rules</h1>
+<p>Throwaway logic prototype: should trusted staff freely skip stages, move backward, and correct terminal stages? What should closing and reopening an opening allow?</p>
+<p><small>All data lives in this tab and resets on refresh. This explores behavior; it does not propose the hiring pipeline layout or implement Django/HTMX.</small></p>
+<label for="policy">Policy to explore</label>
+<select id="policy"><option value="A">A â€” Flexible changes (recommended starting point)</option><option value="B">B â€” Guided progression with explicit corrections</option><option value="C">C â€” Flexible changes, frozen on closed openings</option></select>
+<p id="policyDescription"></p>
+<section aria-labelledby="stateTitle"><h2 id="stateTitle">Current state</h2><dl id="state"></dl><p id="result" class="notice" role="status" aria-live="polite"></p></section>
+<section><h2>Free play</h2><p>Try any action. A blocked action explains why and leaves the records unchanged.</p><div id="stages"></div><label><input type="checkbox" id="correction"> Treat this stage change as a mistake correction (used by policy B)</label><div id="actions"></div><button id="reset">Reset example</button></section>
+<section><h2>Guided walkthroughs</h2><p>Choose a tab to reset the example. Press its steps in order. The selected policy stays in effect.</p><div role="tablist" aria-label="Scenarios" id="tabs"></div><div id="walkthrough" role="tabpanel"></div></section>
+<section><h2>Actions in this demo</h2><p><small>This is an explanation aid, not a proposed audit-history feature.</small></p><ol id="history"></ol></section>
+</main>
+<script>
+const stages=['Applied','Screening','Interview','Final Review','Offer','Hired','Rejected','Withdrawn'];
+const descriptions={A:'Any stage can change to any other stage, including Hired, Rejected, and Withdrawn. Closed openings block new applications but existing applications remain editable. Reopening preserves stages.',B:'Normal progress follows Applied â†’ Screening â†’ Interview â†’ Final Review â†’ Offer â†’ Hired. Rejection or withdrawal is allowed from any nonterminal stage. Skips, backward moves, and changes from terminal stages require the correction checkbox. Closed openings still allow existing applications to progress.',C:'Any stage can change to any other while the opening is open. Closing blocks all stage changes and new applications. Reopening preserves stages and restores editing.'};
+function initial(){return {stage:'Applied',open:true,archived:false,otherApplication:false};}
+// Pure business logic: no DOM access and no persistence.
+function transition(state,action,policy){
+ const next={...state}; let message='';
+ if(action.type==='stage'){
+  if(action.stage===state.stage)return {state:next,message:'No change: the application is already at '+state.stage+'.'};
+  if(policy==='C'&&!state.open)return {state:next,message:'Blocked: reopen the opening before changing stages under policy C.'};
+  const terminal=['Hired','Rejected','Withdrawn'].includes(state.stage);
+  const normal=!terminal&&(stages.indexOf(action.stage)===stages.indexOf(state.stage)+1||['Rejected','Withdrawn'].includes(action.stage));
+  if(policy==='B'&&!normal&&!action.correction)return {state:next,message:'Blocked: this skip, backward move, or terminal-state change requires an explicit mistake correction under policy B.'};
+  next.stage=action.stage;message='Stage changed: '+state.stage+' â†’ '+next.stage+(policy==='B'&&action.correction?' (correction).':'.');
+ }else if(action.type==='opening'){next.open=action.open;message=(next.open?'Reopened':'Closed')+' the opening. Existing application stages are preserved.';
+ }else if(action.type==='archive'){next.archived=action.archived;message=next.archived?'Candidate archived. Existing applications remain manageable, subject to the opening policy.':'Candidate restored.';
+ }else if(action.type==='duplicate'){message='Blocked: this candidate already has an application for this opening, regardless of its stage.';
+ }else if(action.type==='new'){
+  if(!state.open)message='Blocked: the opening is closed.';
+  else if(state.otherApplication)message='Blocked: the second candidate already has an application for this opening.';
+  else{next.otherApplication=true;message='Created a second candidateâ€™s application at Applied.';}
+ }
+ return {state:next,message};
+}
+const scenarios=[
+ {name:'Normal hiring',description:'Follow the usual sequence from Applied to Hired.',steps:stages.slice(1,6).map(stage=>({label:'Move to '+stage,type:'stage',stage}))},
+ {name:'Skip & move backward',description:'Try skipping Screening, then return to Applied. Policy B requires the correction steps.',steps:[{label:'Try skipping to Interview',type:'stage',stage:'Interview'},{label:'Correct the stage to Interview',type:'stage',stage:'Interview',correction:true},{label:'Try moving back to Applied',type:'stage',stage:'Applied'},{label:'Correct back to Applied',type:'stage',stage:'Applied',correction:true}]},
+ {name:'Terminal mistakes',description:'Reject a candidate by mistake, restore Interview, then explore correcting Hired and Withdrawn. Terminal stages never delete the application.',steps:[{label:'Reject application',type:'stage',stage:'Rejected'},{label:'Try returning to Interview',type:'stage',stage:'Interview'},{label:'Correct to Interview',type:'stage',stage:'Interview',correction:true},{label:'Correct to Hired',type:'stage',stage:'Hired',correction:true},{label:'Correct Hired to Offer',type:'stage',stage:'Offer',correction:true},{label:'Withdraw application',type:'stage',stage:'Withdrawn'},{label:'Correct Withdrawn to Screening',type:'stage',stage:'Screening',correction:true}]},
+ {name:'Close & reopen',description:'Close an opening with an existing application. Try progressing and adding another candidate, then reopen. No policy changes stages automatically.',steps:[{label:'Move to Screening',type:'stage',stage:'Screening'},{label:'Close opening',type:'opening',open:false},{label:'Try moving to Interview while closed',type:'stage',stage:'Interview'},{label:'Try adding another candidate while closed',type:'new'},{label:'Reopen opening',type:'opening',open:true},{label:'Move to Interview',type:'stage',stage:'Interview'},{label:'Add another candidate at Applied',type:'new'}]},
+ {name:'Duplicates & archive',description:'A terminal stage does not permit a duplicate application. Archiving Alex preserves the existing application and its editing rules. New applications for archived candidates are prohibited by the agreed requirements.',steps:[{label:'Reject application',type:'stage',stage:'Rejected'},{label:'Try creating a duplicate application',type:'duplicate'},{label:'Archive candidate',type:'archive',archived:true},{label:'Correct existing application to Screening',type:'stage',stage:'Screening',correction:true},{label:'Try a duplicate while archived',type:'duplicate'},{label:'Restore candidate',type:'archive',archived:false},{label:'Add another candidate at Applied',type:'new'}]}
+];
+let state=initial(),policy='A',scenarioIndex=0,stepIndex=0,history=[],message='Example ready. Alex Morgan has applied for Software Developer.';
+const $=id=>document.getElementById(id);
+function act(action){const result=transition(state,action,policy);state=result.state;message=result.message;history.unshift(message);render();}
+function reset(){state=initial();stepIndex=0;history=[];message='Reset to Applied, opening Open, candidate Active.';$('correction').checked=false;render();}
+function button(label,fn){const b=document.createElement('button');b.textContent=label;b.onclick=fn;return b;}
+function render(){
+ $('policyDescription').textContent=descriptions[policy];
+ const fields=[['Policy',policy],['Candidate','Alex Morgan'],['Candidate status',state.archived?'Archived':'Active'],['Opening','Software Developer'],['Opening status',state.open?'Open':'Closed'],['Application stage',state.stage],['Application count','1 for Alex and this opening'],['Second candidate',state.otherApplication?'Application exists â€” Applied':'No application']];
+ $('state').replaceChildren();for(const [key,value]of fields){const dt=document.createElement('dt'),dd=document.createElement('dd');dt.textContent=key;dd.textContent=value;$('state').append(dt,dd);}
+ $('result').textContent=message;
+ $('tabs').replaceChildren();scenarios.forEach((s,i)=>{const b=button(s.name,()=>{scenarioIndex=i;reset();});b.setAttribute('role','tab');b.setAttribute('aria-selected',i===scenarioIndex);$('tabs').append(b);});
+ const s=scenarios[scenarioIndex];$('walkthrough').replaceChildren();const p=document.createElement('p');p.textContent=s.description;$('walkthrough').append(p);const steps=document.createElement('div');steps.className='steps';s.steps.forEach((step,i)=>{const b=button((i<stepIndex?'Done: ':`${i+1}. `)+step.label,()=>{stepIndex++;act(step);});b.disabled=i!==stepIndex;steps.append(b);});$('walkthrough').append(steps);if(stepIndex===s.steps.length){const p=document.createElement('p');p.textContent='Walkthrough complete. Compare another policy or continue with free play.';$('walkthrough').append(p);}
+ $('history').replaceChildren();history.forEach(line=>{const li=document.createElement('li');li.textContent=line;$('history').append(li);});
+}
+stages.forEach(stage=>$('stages').append(button('Move to '+stage,()=>act({type:'stage',stage,correction:$('correction').checked}))));
+for(const [label,action]of [['Close opening',{type:'opening',open:false}],['Reopen opening',{type:'opening',open:true}],['Archive candidate',{type:'archive',archived:true}],['Restore candidate',{type:'archive',archived:false}],['Try duplicate application',{type:'duplicate'}],['Add another candidateâ€™s application',{type:'new'}]])$('actions').append(button(label,()=>act(action)));
+$('reset').onclick=reset;$('policy').onchange=()=>{policy=$('policy').value;reset();};render();
+</script>
+</html>
+
